@@ -689,7 +689,7 @@ export default function AdminPortal({
                                   <img
                                     src={renderPhoto(s.profilePhoto)}
                                     alt={s.fullName}
-                                    className="w-full h-full object-cover group-hover/img:scale-105 transition-transform"
+                                    className="w-full h-full object-cover object-center group-hover/img:scale-105 transition-transform"
                                     referrerPolicy="no-referrer"
                                   />
                                 </div>
@@ -781,14 +781,14 @@ export default function AdminPortal({
                     <div className="space-y-3">
                       <div 
                         onClick={() => onPreviewImage && exec.profile_image && onPreviewImage(exec.profile_image, exec.full_name, `${exec.position} • APPSN Kwara`)}
-                        className="relative aspect-4/3 w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in group/photo"
+                        className="relative aspect-[4/3.5] w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in group/photo"
                         title="Click to preview photo"
                       >
                         {exec.profile_image ? (
                           <img
                             src={exec.profile_image}
                             alt={exec.full_name}
-                            className="w-full h-full object-cover object-top group-hover/photo:scale-105 transition-transform"
+                            className="w-full h-full object-cover object-center group-hover/photo:scale-105 transition-transform"
                             referrerPolicy="no-referrer"
                           />
                         ) : (
@@ -1150,7 +1150,7 @@ export default function AdminPortal({
                   rows={3}
                   value={formAbout}
                   onChange={(e) => setFormAbout(e.target.value)}
-                  placeholder="Licensed surveyor authorized for cadastral boundary determination and survey plan lodgement..."
+                  placeholder="Licensed surveyor authorized for every type of survey work..."
                   className="w-full text-xs font-semibold p-3 border border-slate-200 rounded-xl focus:border-[#0D3829] focus:outline-none resize-none"
                 />
               </div>

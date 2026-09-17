@@ -70,7 +70,7 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
                       src={surveyor.profilePhoto}
                       alt={surveyor.fullName}
                       onError={() => setImgError(true)}
-                      className="w-full h-full object-cover group-hover/photo:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover object-center group-hover/photo:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center">
@@ -113,10 +113,7 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-1.5">
                   <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-[#0D3829] text-[11px] font-bold font-mono">
-                    {surveyor.lga} LGA
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">
-                    {surveyor.specialization}
+                    {surveyor.lga === 'LGA not specified' ? 'Kwara State' : `${surveyor.lga} LGA`}
                   </span>
                 </div>
                 
@@ -165,7 +162,10 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
               {/* Bio summary */}
               {(surveyor.bio || surveyor.aboutMe) && (
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">
-                  {surveyor.bio || surveyor.aboutMe}
+                  {(surveyor.bio || surveyor.aboutMe || '').replace(
+                    /Authorized for cadastral boundary determination, title charting, and official survey lodgements\.?/gi,
+                    'Authorized for every type of survey work.'
+                  )}
                 </p>
               )}
             </div>
@@ -179,7 +179,7 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
                 Direct Contact &amp; Engagement
               </h4>
               <p className="text-xs text-slate-500 leading-relaxed mt-0.5">
-                Reach out directly to {surveyor.fullName} for boundary confirmation, cadastral survey, layout design, or professional consultation.
+                Reach out directly to {surveyor.fullName} for boundary confirmation, survey execution, layout design, or professional consultation.
               </p>
             </div>
 
@@ -250,15 +250,6 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
                   <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#0D3829] group-hover:translate-x-0.5 transition-all" />
                 </a>
               )}
-            </div>
-
-            {/* Verification Advisory */}
-            <div className="bg-[#FAF9F5] p-4 rounded-2xl border border-slate-200/80 text-xs text-slate-600 leading-relaxed flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold text-slate-800 block">Public Consumer Advisory:</span>
-                Always request to inspect the surveyor's physical red seal and SURCON stamp before authorizing any boundary beacons or perimeter surveys on your land.
-              </div>
             </div>
           </div>
 

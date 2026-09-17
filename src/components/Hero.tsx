@@ -98,7 +98,7 @@ export default function Hero({
                   <input
                     id="hero-search-input"
                     type="text"
-                    placeholder="Search by name, registration number or specialization..."
+                    placeholder="Search by name, SURCON reg number or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-3 py-3 bg-transparent text-slate-800 placeholder-slate-400 focus:outline-none text-xs sm:text-[13px] font-medium"

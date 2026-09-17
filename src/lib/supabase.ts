@@ -101,9 +101,21 @@ export function mapSupabaseRowToSurveyor(row: SupabaseSurveyorRow): Surveyor {
   const specialization = row.specialization || deriveSpecialization(row.company_name);
   const profilePhoto = row.profile_image_url || row.profilePhoto || '';
 
-  const aboutMe = row.aboutMe || (
-    `${fullName} is a licensed and certified private practicing surveyor with SURCON registration ${registrationNumber}, practicing with ${row.company_name || 'an approved private surveying practice'} in ${lga !== 'LGA not specified' ? lga + ' LGA' : 'Kwara State'}. Authorized for cadastral boundary determination, title charting, and official survey lodgements.`
+  let aboutMe = row.aboutMe || (
+    `${fullName} is a licensed and certified private practicing surveyor with SURCON registration ${registrationNumber}, practicing with ${row.company_name || 'an approved private surveying practice'} in ${lga !== 'LGA not specified' ? lga + ' LGA' : 'Kwara State'}. Authorized for every type of survey work.`
   );
+
+  if (aboutMe.includes('Authorized for cadastral boundary determination, title charting, and official survey lodgements.')) {
+    aboutMe = aboutMe.replace(
+      'Authorized for cadastral boundary determination, title charting, and official survey lodgements.',
+      'Authorized for every type of survey work.'
+    );
+  } else if (aboutMe.includes('Authorized for cadastral boundary determination, title charting, and official survey lodgements')) {
+    aboutMe = aboutMe.replace(
+      'Authorized for cadastral boundary determination, title charting, and official survey lodgements',
+      'Authorized for every type of survey work.'
+    );
+  }
 
   return {
     id: row.id,

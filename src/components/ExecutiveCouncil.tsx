@@ -52,7 +52,7 @@ export default function ExecutiveCouncil({ executives, onPreviewImage }: Executi
                         onPreviewImage(exec.profile_image, exec.full_name, `${exec.position} • APPSN Kwara`);
                       }
                     }}
-                    className="relative aspect-4/3 w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in group/photo"
+                    className="relative aspect-[4/3.5] w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in group/photo"
                     title="Click to enlarge photo"
                   >
                     {exec.profile_image ? (
@@ -60,7 +60,7 @@ export default function ExecutiveCouncil({ executives, onPreviewImage }: Executi
                         <img
                           src={exec.profile_image}
                           alt={exec.full_name}
-                          className="w-full h-full object-cover object-top group-hover/photo:scale-105 transition-transform duration-500 ease-out"
+                          className="w-full h-full object-cover object-center group-hover/photo:scale-105 transition-transform duration-500 ease-out"
                           referrerPolicy="no-referrer"
                         />
                         <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center">

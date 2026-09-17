@@ -44,7 +44,7 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
       <div className="p-3 pb-0">
         <div 
           onClick={handleImageClick}
-          className={`relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-100 ${
+          className={`relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-100 ${
             !imgError && surveyor.profilePhoto ? 'cursor-zoom-in group/img' : ''
           }`}
           title={!imgError && surveyor.profilePhoto ? "Click to enlarge photo" : undefined}
@@ -55,7 +55,7 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
                 src={surveyor.profilePhoto}
                 alt={surveyor.fullName}
                 onError={() => setImgError(true)}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                 referrerPolicy="no-referrer"
               />
               {/* Subtle zoom indicator on hover */}

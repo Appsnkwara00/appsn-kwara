@@ -501,8 +501,8 @@ export default function App() {
             <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-center">
                 
-                {/* Search query input (6 cols) */}
-                <div className="md:col-span-6 relative">
+                {/* Search query input (8 cols) */}
+                <div className="md:col-span-8 relative">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
@@ -513,8 +513,8 @@ export default function App() {
                   />
                 </div>
 
-                {/* LGA Dropdown (3 cols) */}
-                <div className="md:col-span-3">
+                {/* LGA Dropdown (4 cols) */}
+                <div className="md:col-span-4">
                   <select
                     value={selectedLga}
                     onChange={(e) => setSelectedLga(e.target.value)}
@@ -526,21 +526,6 @@ export default function App() {
                     ))}
                   </select>
                 </div>
-
-                {/* Specialization Dropdown (3 cols) */}
-                <div className="md:col-span-3">
-                  <select
-                    value={selectedSpecialization}
-                    onChange={(e) => setSelectedSpecialization(e.target.value)}
-                    className="w-full py-2.5 px-3 bg-[#FAF9F5] border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-[#0D3829] focus:bg-white text-slate-700 cursor-pointer font-medium"
-                  >
-                    <option value="">All Specializations</option>
-                    {SPECIALIZATIONS.map((spec) => (
-                      <option key={spec} value={spec}>{spec}</option>
-                    ))}
-                  </select>
-                </div>
-
               </div>
 
               {/* Filter indicators & reset */}
@@ -548,12 +533,12 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-[#0D3829]">{filteredSurveyors.length}</span>
                   <span>certified surveyors matching criteria</span>
-                  {(searchQuery || selectedLga || selectedSpecialization) && (
+                  {(searchQuery || selectedLga) && (
                     <span className="text-slate-400">· filtered from {totalSurveyorCount} total</span>
                   )}
                 </div>
 
-                {(searchQuery || selectedLga || selectedSpecialization) && (
+                {(searchQuery || selectedLga) && (
                   <button
                     onClick={handleResetFilters}
                     className="text-[#0D3829] hover:underline font-bold text-xs cursor-pointer font-sans"
