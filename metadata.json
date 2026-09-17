@@ -1,0 +1,6 @@
+{
+  "name": "APPSN Kwara Directory",
+  "description": "Official Directory and Portal for the Association of Private Practicing Surveyors of Nigeria (APPSN) - Kwara State Branch.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
