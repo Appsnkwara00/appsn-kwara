@@ -140,6 +140,15 @@ export default function Footer({ setView, currentView }: FooterProps) {
             <span className="text-slate-400">Kwara State GIS Compliant</span>
             <span>•</span>
             <a 
+              href="/sitemap.xml" 
+              target="_blank" 
+              rel="noreferrer"
+              className="text-slate-400 hover:text-emerald-300 transition-colors underline decoration-emerald-900/50"
+            >
+              XML Sitemap
+            </a>
+            <span>•</span>
+            <a 
               href="https://kwara.gov.ng" 
               target="_blank" 
               rel="noreferrer"
