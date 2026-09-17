@@ -17,7 +17,6 @@ export default function Navbar({
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'directory', label: 'Find a Surveyor' },
-    { id: 'aims', label: 'Aims & Objectives' },
     { id: 'services', label: 'Services' },
     { id: 'about', label: 'About Us' },
     { id: 'resources', label: 'Resources' },
@@ -122,13 +121,13 @@ export default function Navbar({
               <SlidersHorizontal className="w-4 h-4" />
             </button>
 
-            {/* Find a Surveyor Direct Action Button */}
+            {/* Find Surveyor Direct Action Button */}
             <button
               id="nav-find-surveyor-btn"
               onClick={() => handleNavClick('directory')}
-              className="flex items-center gap-2 bg-[#0D3829] hover:bg-[#09281D] active:scale-98 text-white text-xs font-semibold px-4.5 py-2.5 rounded-full shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group"
+              className="flex items-center gap-2 bg-[#0B251D] hover:bg-[#071913] active:scale-98 text-white text-xs font-semibold px-4.5 py-2.5 rounded-full shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group"
             >
-              <span>Verify Surveyor</span>
+              <span>Find Surveyor</span>
               <ArrowRight className="w-3.5 h-3.5 text-emerald-300 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>

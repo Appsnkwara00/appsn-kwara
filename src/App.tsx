@@ -437,10 +437,9 @@ export default function App() {
               onReset={handleResetFilters}
               totalCount={filteredSurveyors.length}
               stats={{
-                totalSurveyors: totalSurveyorCount || 60,
-                lgasCovered: lgaCoverageCount || 16,
+                totalSurveyors: 60,
+                lgasCovered: 16,
                 verifiedPercentage: 100,
-                totalExperienceYears: 650,
               }}
               onSearch={() => {
                 setView('directory');
