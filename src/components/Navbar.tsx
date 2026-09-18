@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, Search, SlidersHorizontal, Compass, ArrowRight } from 'lucide-react';
+import { getPathForView } from '../lib/routes';
 
 interface NavbarProps {
   currentView: string;
@@ -49,9 +50,13 @@ export default function Navbar({
         <div className="flex justify-between h-20 items-center">
           
           {/* Logo & Brand Identity */}
-          <div 
+          <a 
+            href="/home"
             className="flex items-center gap-3 cursor-pointer group select-none" 
-            onClick={() => handleNavClick('home')}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick('home');
+            }}
             id="nav-logo-brand"
           >
             <div className="relative flex items-center justify-center w-12 h-12 rounded-full overflow-hidden border border-emerald-950/15 bg-white p-0.5 shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-300">
@@ -70,18 +75,22 @@ export default function Navbar({
                 ASSOCIATION OF PRIVATE PRACTICING SURVEYORS OF NIGERIA, KWARA STATE
               </span>
             </div>
-          </div>
+          </a>
 
           {/* Center Navigation Links (Desktop) */}
           <div className="hidden lg:flex items-center gap-6 text-sm font-medium">
             {navItems.map((item) => {
               const isActive = currentView === item.id || (item.id === 'directory' && currentView === 'directory');
               return (
-                <button
+                <a
                   key={item.id}
                   id={`nav-${item.id}`}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`transition-colors py-2 px-1 relative cursor-pointer text-[13.5px] ${
+                  href={getPathForView(item.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.id);
+                  }}
+                  className={`transition-colors py-2 px-1 relative cursor-pointer text-[13.5px] inline-block ${
                     isActive
                       ? 'text-[#0D3829] font-bold'
                       : 'text-slate-600 hover:text-[#0D3829]'
@@ -91,7 +100,7 @@ export default function Navbar({
                   {isActive && (
                     <span className="absolute bottom-0 left-1 right-1 h-0.5 bg-[#0D3829] rounded-full animate-in fade-in duration-200" />
                   )}
-                </button>
+                </a>
               );
             })}
           </div>
@@ -122,14 +131,18 @@ export default function Navbar({
             </button>
 
             {/* Find Surveyor Direct Action Button */}
-            <button
+            <a
               id="nav-find-surveyor-btn"
-              onClick={() => handleNavClick('directory')}
+              href="/find-a-surveyor"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick('directory');
+              }}
               className="flex items-center gap-2 bg-[#0B251D] hover:bg-[#071913] active:scale-98 text-white text-xs font-semibold px-4.5 py-2.5 rounded-full shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group"
             >
               <span>Find Surveyor</span>
               <ArrowRight className="w-3.5 h-3.5 text-emerald-300 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            </a>
           </div>
 
           {/* Mobile menu hamburger button */}
@@ -154,10 +167,14 @@ export default function Navbar({
           {navItems.map((item) => {
             const isActive = currentView === item.id || (item.id === 'directory' && currentView === 'directory');
             return (
-              <button
+              <a
                 key={item.id}
                 id={`mobile-nav-${item.id}`}
-                onClick={() => handleNavClick(item.id)}
+                href={getPathForView(item.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavClick(item.id);
+                }}
                 className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
                   isActive
                     ? 'bg-emerald-50 text-[#0D3829] font-bold'
@@ -165,20 +182,24 @@ export default function Navbar({
                 }`}
               >
                 {item.label}
-              </button>
+              </a>
             );
           })}
           
           <div className="h-[1px] bg-slate-100 my-3"></div>
           
-          <button
+          <a
             id="mobile-nav-directory"
-            onClick={() => handleNavClick('directory')}
+            href="/find-a-surveyor"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick('directory');
+            }}
             className="flex items-center justify-center gap-2 w-full py-3 bg-[#0D3829] text-white font-semibold rounded-xl text-sm shadow-xs hover:bg-[#09281D]"
           >
             <Search className="w-4 h-4 text-emerald-300" />
             <span>Find &amp; Verify a Surveyor</span>
-          </button>
+          </a>
         </div>
       )}
     </nav>

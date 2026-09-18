@@ -7,31 +7,37 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://appsnkwara.com/?view=directory</loc>
+    <loc>https://appsnkwara.com/home</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://appsnkwara.com/find-a-surveyor</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://appsnkwara.com/?view=services</loc>
+    <loc>https://appsnkwara.com/services</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://appsnkwara.com/?view=about</loc>
+    <loc>https://appsnkwara.com/about</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://appsnkwara.com/?view=resources</loc>
+    <loc>https://appsnkwara.com/resources</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://appsnkwara.com/?view=contact</loc>
+    <loc>https://appsnkwara.com/contact</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

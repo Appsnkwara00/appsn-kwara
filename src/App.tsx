@@ -13,6 +13,7 @@ import ExecutiveCouncil from './components/ExecutiveCouncil';
 import AimsObjectives from './components/AimsObjectives';
 import VerificationGuide from './components/VerificationGuide';
 import ImagePreviewModal from './components/ImagePreviewModal';
+import AdminPortal from './components/AdminPortal';
 
 import { Surveyor, AdminAccount, ContactMessage, Executive, AimObjective } from './types';
 import { DEFAULT_ADMINS, INITIAL_MESSAGES, KWARA_LGAS, SPECIALIZATIONS, INITIAL_EXECUTIVES, INITIAL_AIMS_OBJECTIVES } from './data';
@@ -25,8 +26,15 @@ import {
   subscribeToAimsChanges,
   saveExecutiveToSupabase,
   deleteExecutiveFromSupabase,
-  saveAimToSupabase
+  saveAimToSupabase,
+  deleteAimFromSupabase
 } from './lib/supabase';
+import { 
+  getViewFromLocation, 
+  getPathForView, 
+  updatePageMeta, 
+  AppView 
+} from './lib/routes';
 import { 
   Compass, 
   Users, 
@@ -53,8 +61,28 @@ export function shuffleArray<T>(array: T[]): T[] {
 }
 
 export default function App() {
-  // Navigation State
-  const [view, setView] = useState<string>('home'); // 'home' | 'directory' | 'services' | 'about' | 'resources' | 'contact' | 'admin'
+  // Navigation State initialized directly from browser URL
+  const [view, setView] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return getViewFromLocation(window.location.pathname, window.location.search);
+    }
+    return 'home';
+  });
+
+  // Centralized URL-synced navigation method
+  const navigateTo = (newView: string, pushHistory = true) => {
+    setView(newView);
+    const targetPath = getPathForView(newView);
+    updatePageMeta(newView as AppView);
+
+    if (pushHistory && typeof window !== 'undefined') {
+      const currentPath = window.location.pathname;
+      if (currentPath !== targetPath) {
+        window.history.pushState({ view: newView }, '', targetPath);
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Surveyors live state from Supabase
   const [surveyors, setSurveyors] = useState<Surveyor[]>([]);
@@ -76,8 +104,22 @@ export default function App() {
   const [selectedSpecialization, setSelectedSpecialization] = useState('');
   const [shuffleKey, setShuffleKey] = useState<number>(0);
 
-  // Selected Surveyor Modal State
+  // Selected Surveyor Modal State with URL synchronization
   const [selectedSurveyor, setSelectedSurveyor] = useState<Surveyor | null>(null);
+
+  const handleSelectSurveyor = (surveyor: Surveyor | null) => {
+    setSelectedSurveyor(surveyor);
+    if (typeof window !== 'undefined') {
+      const targetPath = getPathForView(view);
+      if (surveyor) {
+        const regOrId = surveyor.registrationNumber || surveyor.surcon_registration_number || surveyor.id;
+        const encodedReg = encodeURIComponent(regOrId);
+        window.history.replaceState({ view, surveyor: surveyor.id }, '', `${targetPath}?surveyor=${encodedReg}`);
+      } else {
+        window.history.replaceState({ view }, '', targetPath);
+      }
+    }
+  };
 
   // Image Preview Modal State
   const [previewImage, setPreviewImage] = useState<{
@@ -203,6 +245,57 @@ export default function App() {
     };
   }, []);
 
+  // Handle browser Back/Forward navigation (popstate) and URL query synchronization
+  useEffect(() => {
+    const handlePopState = () => {
+      const detectedView = getViewFromLocation(window.location.pathname, window.location.search);
+      setView(detectedView);
+      updatePageMeta(detectedView);
+
+      const params = new URLSearchParams(window.location.search);
+      const surveyorParam = params.get('surveyor');
+      if (surveyorParam && surveyors.length > 0) {
+        const match = surveyors.find(
+          s => (s.registrationNumber && s.registrationNumber.toLowerCase() === surveyorParam.toLowerCase()) ||
+               (s.surcon_registration_number && s.surcon_registration_number.toLowerCase() === surveyorParam.toLowerCase()) ||
+               s.id.toLowerCase() === surveyorParam.toLowerCase()
+        );
+        if (match) {
+          setSelectedSurveyor(match);
+        } else {
+          setSelectedSurveyor(null);
+        }
+      } else {
+        setSelectedSurveyor(null);
+      }
+    };
+
+    // Initialize meta tags and check URL params on mount
+    const initialView = getViewFromLocation(window.location.pathname, window.location.search);
+    updatePageMeta(initialView);
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [surveyors]);
+
+  // Synchronize surveyor profile modal if page is refreshed or opened with ?surveyor=
+  useEffect(() => {
+    if (surveyors.length > 0 && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const surveyorParam = params.get('surveyor');
+      if (surveyorParam && !selectedSurveyor) {
+        const match = surveyors.find(
+          s => (s.registrationNumber && s.registrationNumber.toLowerCase() === surveyorParam.toLowerCase()) ||
+               (s.surcon_registration_number && s.surcon_registration_number.toLowerCase() === surveyorParam.toLowerCase()) ||
+               s.id.toLowerCase() === surveyorParam.toLowerCase()
+        );
+        if (match) {
+          setSelectedSurveyor(match);
+        }
+      }
+    }
+  }, [surveyors]);
+
   // Randomize directory order whenever navigating to the directory view
   useEffect(() => {
     if (view === 'directory') {
@@ -278,6 +371,15 @@ export default function App() {
     await saveAimToSupabase(aim);
   };
 
+  const handleDeleteAim = async (id: string) => {
+    const updated = aims.filter(a => a.id !== id);
+    setAims(updated);
+    try {
+      localStorage.setItem('appsn_aims_cache', JSON.stringify(updated));
+    } catch (e) {}
+    await deleteAimFromSupabase(id);
+  };
+
   const handleAddAdmin = (username: string, email: string, role: 'Super Admin' | 'Branch Admin') => {
     const newAdmin: AdminAccount = {
       id: `admin-${Date.now()}`,
@@ -343,7 +445,7 @@ export default function App() {
     } catch (e) {}
 
     setLoggedInAdmin(admin);
-    setView('admin');
+    navigateTo('admin');
   };
 
   const handleAdminLogout = () => {
@@ -351,7 +453,7 @@ export default function App() {
     try {
       sessionStorage.removeItem('appsn_admin_session');
     } catch (e) {}
-    setView('home');
+    navigateTo('home');
   };
 
   const handleResetFilters = () => {
@@ -405,10 +507,8 @@ export default function App() {
       {/* 1. TOP NAVIGATION HEADER */}
       <Navbar 
         currentView={view} 
-        setView={(newView) => {
-          setView(newView);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }} 
+        setView={(newView) => navigateTo(newView)} 
+        onQuickSearchClick={() => navigateTo('directory')}
       />
 
       {/* 2. MAIN APPLICATION CONTENT */}
@@ -441,10 +541,7 @@ export default function App() {
                 lgasCovered: 16,
                 verifiedPercentage: 100,
               }}
-              onSearch={() => {
-                setView('directory');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onSearch={() => navigateTo('directory')}
             />
 
             {/* 2. APPSN KWARA EXECUTIVE COUNCIL */}
@@ -460,10 +557,7 @@ export default function App() {
 
             {/* 4. WHY HIRE AN APPSN SURVEYOR / VERIFICATION GUIDE */}
             <VerificationGuide 
-              onSearchSurveyor={() => {
-                setView('directory');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onSearchSurveyor={() => navigateTo('directory')}
             />
 
           </div>
@@ -577,7 +671,7 @@ export default function App() {
                   <SurveyorCard 
                     key={surveyor.id}
                     surveyor={surveyor}
-                    onViewProfile={setSelectedSurveyor}
+                    onViewProfile={handleSelectSurveyor}
                     onPreviewImage={handleOpenPreview}
                   />
                 ))}
@@ -593,20 +687,11 @@ export default function App() {
         {view === 'services' && (
           <div id="view-services">
             <ServicesSection 
-              onExploreAll={() => {
-                setView('directory');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onExploreAll={() => navigateTo('directory')}
             />
             <CtaBanner 
-              onBrowseSurveyors={() => {
-                setView('directory');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              onLearnServices={() => {
-                setView('contact');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onBrowseSurveyors={() => navigateTo('directory')}
+              onLearnServices={() => navigateTo('contact')}
             />
           </div>
         )}
@@ -618,10 +703,8 @@ export default function App() {
           <div id="view-about">
             <AboutSection 
               isHomePreview={false}
-              onLearnMore={() => {
-                setView('directory');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onLearnMore={() => navigateTo('directory')}
+              onContactClick={() => navigateTo('contact')}
             />
           </div>
         )}
@@ -648,12 +731,41 @@ export default function App() {
           </div>
         )}
 
+        {/* ========================================================= */}
+        {/* VIEW: ADMIN PORTAL                                         */}
+        {/* ========================================================= */}
+        {view === 'admin' && (
+          <div id="view-admin">
+            <AdminPortal 
+              surveyors={surveyors}
+              admins={admins}
+              messages={messages}
+              executives={executives}
+              aims={aims}
+              onAddSurveyor={handleAddSurveyor}
+              onUpdateSurveyor={handleUpdateSurveyor}
+              onDeleteSurveyor={handleDeleteSurveyor}
+              onSaveExecutive={handleSaveExecutive}
+              onDeleteExecutive={handleDeleteExecutive}
+              onSaveAim={handleSaveAim}
+              onDeleteAim={handleDeleteAim}
+              onAddAdmin={handleAddAdmin}
+              onDeleteAdmin={handleDeleteAdmin}
+              onUpdateMessageStatus={handleUpdateMessageStatus}
+              onDeleteMessage={handleDeleteMessage}
+              onLoginSuccess={handleAdminLogin}
+              loggedInAdmin={loggedInAdmin}
+              onPreviewImage={handleOpenPreview}
+            />
+          </div>
+        )}
+
       </main>
 
       {/* 3. PROFILE MODAL */}
       <ProfileModal
         surveyor={selectedSurveyor}
-        onClose={() => setSelectedSurveyor(null)}
+        onClose={() => handleSelectSurveyor(null)}
         onPreviewImage={handleOpenPreview}
       />
 
@@ -666,8 +778,8 @@ export default function App() {
         subtitle={previewImage.subtitle}
       />
 
-      {/* 5. FOOTER (Requirement 8 Step 7) */}
-      <Footer setView={setView} currentView={view} />
+      {/* 5. FOOTER */}
+      <Footer setView={(newView) => navigateTo(newView)} currentView={view} />
 
     </div>
   );

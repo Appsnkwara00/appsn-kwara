@@ -397,3 +397,19 @@ export async function saveAimToSupabase(aim: AimObjective): Promise<void> {
     console.warn('Error saving aim:', e);
   }
 }
+
+// Delete aim from Supabase
+export async function deleteAimFromSupabase(id: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('aims_objectives')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      console.warn('Could not delete from Supabase aims_objectives table:', error.message);
+    }
+  } catch (e) {
+    console.warn('Error deleting aim:', e);
+  }
+}
+

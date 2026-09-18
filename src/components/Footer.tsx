@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import { getPathForView } from '../lib/routes';
 
 interface FooterProps {
   setView: (view: string) => void;
@@ -47,8 +48,15 @@ export default function Footer({ setView, currentView }: FooterProps) {
           
           {/* Brand & Organization Column (5 Cols) */}
           <div className="md:col-span-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-13 h-13 rounded-full overflow-hidden border border-emerald-800/80 bg-white p-0.5 shrink-0 shadow-sm">
+            <a 
+              href="/home"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick('home');
+              }}
+              className="flex items-center gap-3 cursor-pointer group select-none"
+            >
+              <div className="w-13 h-13 rounded-full overflow-hidden border border-emerald-800/80 bg-white p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-300">
                 <img 
                   src="/logo.png" 
                   alt="APPSN Kwara Official Seal" 
@@ -64,7 +72,7 @@ export default function Footer({ setView, currentView }: FooterProps) {
                   ASSOCIATION OF PRIVATE PRACTICING SURVEYORS OF NIGERIA
                 </span>
               </div>
-            </div>
+            </a>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-md pt-1">
               The official professional body representing registered, licensed, and private practicing surveyors across Kwara State under the aegis of the Nigerian Institution of Surveyors (NIS) and Surveyors Council of Nigeria (SURCON).
@@ -77,18 +85,25 @@ export default function Footer({ setView, currentView }: FooterProps) {
               Quick Navigation
             </h4>
             <ul className="space-y-2.5 text-xs">
-              {navLinks.map((link) => (
-                <li key={link.id}>
-                  <button
-                    onClick={() => handleNavClick(link.id)}
-                    className={`transition-colors cursor-pointer text-left hover:text-white ${
-                      currentView === link.id ? 'text-emerald-300 font-bold' : 'text-slate-400'
-                    }`}
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
+              {navLinks.map((link) => {
+                const targetHref = link.id === 'aims' ? '/#aims-and-objectives' : getPathForView(link.id);
+                return (
+                  <li key={link.id}>
+                    <a
+                      href={targetHref}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleNavClick(link.id);
+                      }}
+                      className={`transition-colors cursor-pointer text-left hover:text-white inline-block ${
+                        currentView === link.id ? 'text-emerald-300 font-bold' : 'text-slate-400'
+                      }`}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
