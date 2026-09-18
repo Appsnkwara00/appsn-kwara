@@ -1,4 +1,18 @@
+# robots.txt for APPSN Kwara State (https://appsnkwara.com)
 User-agent: *
 Allow: /
+Allow: /find-a-surveyor
+Allow: /services
+Allow: /about
+Allow: /resources
+Allow: /contact
+Allow: /sitemap.xml
+Allow: /logo.png
+Allow: /favicon.png
+
+# Prevent indexing of private administrative portal
+Disallow: /admin
+Disallow: /portal
+Disallow: /api/
 
 Sitemap: https://appsnkwara.com/sitemap.xml

@@ -125,9 +125,47 @@ export function updatePageMeta(view: AppView) {
   if (!route) return;
   if (typeof document !== 'undefined') {
     document.title = route.title;
+    
+    // 1. Meta Description
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute('content', route.description);
     }
+
+    // Determine current canonical URL
+    const baseUrl = (typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.origin.includes('run.app'))
+      ? window.location.origin
+      : 'https://appsnkwara.com';
+    const canonicalPath = route.path === '/home' ? '/' : route.path;
+    const fullCanonicalUrl = `${baseUrl}${canonicalPath}`;
+
+    // 2. Canonical Link Tag
+    let canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (!canonicalTag) {
+      canonicalTag = document.createElement('link');
+      canonicalTag.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalTag);
+    }
+    canonicalTag.setAttribute('href', fullCanonicalUrl);
+
+    // 3. OpenGraph Tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', route.title);
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', route.description);
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', fullCanonicalUrl);
+
+    // 4. Twitter Card Tags
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute('content', route.title);
+
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.setAttribute('content', route.description);
+
+    const twUrl = document.querySelector('meta[name="twitter:url"]');
+    if (twUrl) twUrl.setAttribute('content', fullCanonicalUrl);
   }
 }
