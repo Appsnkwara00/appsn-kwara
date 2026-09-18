@@ -18,11 +18,11 @@ export default function ResourcesSection() {
   const faqs = [
     {
       q: "How do I know if a surveyor is registered with SURCON?",
-      a: "Every genuine private practicing surveyor possesses an official SURCON registration number (e.g. SURCON BJ/1234 or SURV/...) and is registered under the Kwara State branch of APPSN. You can search by name or registration number directly in this directory or verify at the APPSN Secretariat, Plot 10 Fate Area, Ilorin."
+      a: "Every genuine private practicing surveyor possesses an official SURCON registration number (e.g. SURCON BJ/1234 or SURV/...) and is registered under the Kwara State branch of APPSN. You can search by name or registration number directly in this directory or verify at the APPSN Secretariat, Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara."
     },
     {
-      q: "What is the importance of the Red Seal on a survey plan?",
-      a: "The red seal is the mandatory statutory stamp impressed on an authentic survey plan. It certifies that the boundary demarcation was conducted under the direct supervision of a licensed registered surveyor who assumes legal liability for the coordinates and measurements. A plan without a valid red seal and live signature is illegal and cannot be used for a Certificate of Occupancy (C of O)."
+      q: "What is the importance of the Surcon Seal on a survey plan?",
+      a: "The Surcon seal is the mandatory statutory stamp impressed on an authentic survey plan. It certifies that the boundary demarcation was conducted under the direct supervision of a licensed registered surveyor who assumes legal liability for the coordinates and measurements. A plan without a valid Surcon seal and live signature is illegal and cannot be used for a Certificate of Occupancy (C of O)."
     },
     {
       q: "Can I use an unregistered surveyor or draftsman for my land?",
@@ -97,7 +97,7 @@ export default function ResourcesSection() {
             <ul className="space-y-2.5 text-xs text-slate-600">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span><strong>Red Seal:</strong> Raised red imprint of the registered surveyor.</span>
+                <span><strong>Surcon Seal:</strong> Raised official seal and imprint of the registered surveyor.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -126,7 +126,7 @@ export default function ResourcesSection() {
               Anyone without a genuine SURCON license who prepares layout plans, conducts perimeter surveys, or issues survey documents commits a criminal act punishable by law.
             </p>
             <div className="pt-2 text-xs font-semibold text-amber-900 bg-amber-50 p-3 rounded-xl border border-amber-200">
-              Report suspicious activities to the APPSN Hotline: <strong>+234 803 351 2345</strong>
+              Report suspicious activities to the APPSN Hotline: <strong>+2349137550602</strong>
             </div>
           </div>
 

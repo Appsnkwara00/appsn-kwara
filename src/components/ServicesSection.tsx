@@ -79,7 +79,7 @@ export const SURVEYING_SERVICES = [
     id: 'survey-plan',
     name: 'Survey Plan Preparation',
     icon: FileCheck,
-    shortDesc: 'SURCON red-sealed survey plans compliant with Kwara State Geographic Information Service (KW-GIS).',
+    shortDesc: 'SURCON-sealed survey plans compliant with Kwara State Geographic Information Service (KW-GIS).',
     fullDesc: 'Official survey drafting, beacon charting, and lodgement with the Office of the Surveyor General of Kwara State to produce authentic survey plans eligible for Certificate of Occupancy (C of O).',
     useCase: 'Governor’s Consent, C of O processing, bank loan collateralization, and registered deed of transfer.'
   }

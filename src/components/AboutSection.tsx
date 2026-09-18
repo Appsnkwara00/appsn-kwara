@@ -48,7 +48,7 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                     <Award className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xl font-bold font-serif leading-tight">20+ Years</div>
+                    <div className="text-xl font-bold font-serif leading-tight">40+ Years</div>
                     <div className="text-xs text-emerald-200/80 font-medium">of Dedicated Service</div>
                   </div>
                 </div>
@@ -245,8 +245,7 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                     </button>
                   )}
                   <div className="text-xs text-emerald-200/90 bg-emerald-950/60 p-3 rounded-xl border border-emerald-800/60">
-                    <p className="font-semibold text-white">Plot 10, NIS Secretariat Complex,</p>
-                    <p>Fate Area, Ilorin, Kwara State, Nigeria.</p>
+                    <p className="font-semibold text-white">Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara.</p>
                   </div>
                 </div>
               </div>

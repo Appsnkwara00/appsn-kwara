@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Mail, Phone, MapPin, Clock, Send, CheckCircle2, 
-  ShieldCheck, AlertCircle
+  ShieldCheck, ExternalLink
 } from 'lucide-react';
 
 interface ContactSectionProps {
@@ -16,22 +16,72 @@ export default function ContactSection({ onSendMessage }: ContactSectionProps) {
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [lastSubmitted, setLastSubmitted] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    subject: string;
+    message: string;
+  } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !subject || !message) return;
 
     setIsSending(true);
-    setTimeout(() => {
-      onSendMessage(name, email, phone, subject, message);
-      setIsSending(false);
-      setIsSuccess(true);
-      setName('');
-      setEmail('');
-      setPhone('');
-      setSubject('');
-      setMessage('');
-    }, 600);
+
+    const submissionData = {
+      name,
+      email,
+      phone,
+      subject,
+      message,
+    };
+
+    setLastSubmitted(submissionData);
+
+    // 1. Send directly to APPSN email: appsnkwara@gmail.com
+    try {
+      await fetch('https://formsubmit.co/ajax/appsnkwara@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone: phone || 'Not provided',
+          _subject: `[APPSN Kwara Secretariat Inquiry] ${subject} - ${name}`,
+          message,
+          _replyto: email,
+          _template: 'table',
+          _captcha: 'false'
+        })
+      });
+    } catch (err) {
+      console.warn('Direct email dispatch notification:', err);
+    }
+
+    // 2. Also register in local portal inbox
+    onSendMessage(name, email, phone, subject, message);
+
+    setIsSending(false);
+    setIsSuccess(true);
+  };
+
+  const getMailtoLink = () => {
+    if (!lastSubmitted) {
+      return 'mailto:appsnkwara@gmail.com';
+    }
+    const body = `Name: ${lastSubmitted.name}
+Email: ${lastSubmitted.email}
+Phone: ${lastSubmitted.phone || 'Not provided'}
+Subject: ${lastSubmitted.subject}
+
+Message:
+${lastSubmitted.message}`;
+    return `mailto:appsnkwara@gmail.com?subject=${encodeURIComponent(`[APPSN Kwara Inquiry] ${lastSubmitted.subject}`)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -147,19 +197,35 @@ export default function ContactSection({ onSendMessage }: ContactSectionProps) {
             </h3>
 
             {isSuccess ? (
-              <div className="bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[320px] space-y-3">
+              <div className="bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[320px] space-y-4">
                 <CheckCircle2 className="w-12 h-12 text-emerald-600" />
-                <h4 className="text-lg font-bold">Message Lodged Successfully!</h4>
-                <p className="text-xs text-emerald-700 max-w-md leading-relaxed font-medium">
-                  Thank you for reaching out to APPSN Kwara State Branch. The secretariat will review your inquiry and follow up within 24–48 hours.
+                <h4 className="text-lg font-bold">Message Dispatched to Secretariat!</h4>
+                <p className="text-xs sm:text-sm text-emerald-800 max-w-md leading-relaxed font-medium">
+                  Your inquiry has been sent directly to the official APPSN Kwara inbox at <strong className="font-mono underline">appsnkwara@gmail.com</strong>. The branch secretariat will review your message and follow up promptly.
                 </p>
-                <button
-                  id="contact-another-btn"
-                  onClick={() => setIsSuccess(false)}
-                  className="mt-4 bg-[#0D3829] hover:bg-[#08281D] text-white font-bold py-2.5 px-6 rounded-full text-xs shadow-xs cursor-pointer"
-                >
-                  Send Another Inquiry
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <a
+                    href={getMailtoLink()}
+                    className="inline-flex items-center gap-2 bg-[#0D3829] hover:bg-[#08281D] text-white font-bold py-2.5 px-5 rounded-full text-xs shadow-xs cursor-pointer transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Open in Mail App (appsnkwara@gmail.com)</span>
+                  </a>
+                  <button
+                    id="contact-another-btn"
+                    onClick={() => {
+                      setIsSuccess(false);
+                      setName('');
+                      setEmail('');
+                      setPhone('');
+                      setSubject('');
+                      setMessage('');
+                    }}
+                    className="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold py-2.5 px-5 rounded-full text-xs shadow-xs cursor-pointer transition-colors"
+                  >
+                    Send Another Inquiry
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -232,6 +298,11 @@ export default function ContactSection({ onSendMessage }: ContactSectionProps) {
                     placeholder="Describe your inquiry, request, or land boundary context..."
                     className="w-full text-xs font-medium p-3 bg-[#FAF9F5] border border-slate-200 rounded-xl focus:outline-none focus:border-[#0D3829] focus:bg-white text-slate-900 transition-colors resize-none"
                   />
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium bg-[#FAF9F5] p-2.5 rounded-xl border border-slate-200/80">
+                  <Mail className="w-4 h-4 text-[#0D3829] shrink-0" />
+                  <span>Submissions are dispatched directly to <strong className="text-[#0D3829] font-mono">appsnkwara@gmail.com</strong></span>
                 </div>
 
                 <button

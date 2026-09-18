@@ -44,7 +44,7 @@ export default function VerificationGuide({ onSearchSurveyor }: VerificationGuid
               <Stamp className="w-6 h-6 text-[#0D3829]" />
             </div>
             <h3 className="text-base font-serif font-bold text-slate-900">
-              Authentic Red Seal & Beacons
+              Authentic Surcon Seal & Beacons
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               Every genuine boundary demarcation is monumented with traceable survey beacons bearing registered surveyor identification and strict geodetic coordinates.
@@ -121,10 +121,10 @@ export default function VerificationGuide({ onSearchSurveyor }: VerificationGuid
                   3
                 </div>
                 <h4 className="font-serif font-bold text-base text-white">
-                  Inspect Red Seal & Pillars
+                  Inspect Surcon Seal & Pillars
                 </h4>
                 <p className="text-xs text-emerald-100/80 leading-relaxed">
-                  Confirm the official red seal on the survey document and ensure beacon numbers match the surveyed plot before final land payments.
+                  Confirm the official Surcon seal on the survey document and ensure beacon numbers match the surveyed plot before final land payments.
                 </p>
               </div>
 
