@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://appsnkwara.org/sitemap.xml
+Sitemap: https://appsnkwara.com/sitemap.xml

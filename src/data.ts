@@ -40,7 +40,7 @@ export const DEFAULT_ADMINS: AdminAccount[] = [
   {
     id: "admin-2",
     username: "secretary_appsn",
-    email: "secretary@appsnkwara.org.ng",
+    email: "secretary@appsnkwara.com",
     role: "Branch Admin",
     lastLogin: "2026-06-25T14:15:00Z"
   }

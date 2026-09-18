@@ -1470,7 +1470,7 @@ export default function AdminPortal({
                   required
                   value={newAdminEmail}
                   onChange={(e) => setNewAdminEmail(e.target.value)}
-                  placeholder="adebayo@appsnkwara.org"
+                  placeholder="adebayo@appsnkwara.com"
                   className="w-full text-xs font-semibold p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0D3829]"
                 />
               </div>
