@@ -1,5 +1,6 @@
 import React from 'react';
 import { EXECUTIVE_COMMITTEE } from '../data';
+import aboutSurveyorPhoto from '../assets/images/appsn_about_surveyors_1790027112897.jpg';
 import { 
   ShieldCheck, 
   ArrowRight, 
@@ -33,8 +34,8 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
               {/* Surveyor Photo */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-50 aspect-[4/3.8] bg-slate-100 group">
                 <img
-                  src="/src/assets/images/surveyor_hero_photo_1789567929216.jpg"
-                  alt="APPSN Kwara professional surveyor"
+                  src={aboutSurveyorPhoto}
+                  alt="APPSN Kwara professional surveyors conducting field survey"
                   className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
