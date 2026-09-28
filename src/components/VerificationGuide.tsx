@@ -27,7 +27,7 @@ export default function VerificationGuide({ onSearchSurveyor }: VerificationGuid
         {/* 4 Core Pillars of Statutory Protection */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3">
+          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '0ms' }}>
             <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
               <ShieldCheck className="w-6 h-6 text-[#0D3829]" />
             </div>
@@ -39,7 +39,7 @@ export default function VerificationGuide({ onSearchSurveyor }: VerificationGuid
             </p>
           </div>
 
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3">
+          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '100ms' }}>
             <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
               <Stamp className="w-6 h-6 text-[#0D3829]" />
             </div>
@@ -51,7 +51,7 @@ export default function VerificationGuide({ onSearchSurveyor }: VerificationGuid
             </p>
           </div>
 
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3">
+          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '200ms' }}>
             <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
               <AlertTriangle className="w-6 h-6 text-[#0D3829]" />
             </div>
@@ -63,7 +63,7 @@ export default function VerificationGuide({ onSearchSurveyor }: VerificationGuid
             </p>
           </div>
 
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3">
+          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '300ms' }}>
             <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
               <FileCheck className="w-6 h-6 text-[#0D3829]" />
             </div>

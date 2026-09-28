@@ -503,7 +503,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FAF9F5] flex flex-col text-slate-800 antialiased font-sans" id="appsn-root">
-      
       {/* 1. TOP NAVIGATION HEADER */}
       <Navbar 
         currentView={view} 
@@ -667,13 +666,20 @@ export default function App() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-                {filteredSurveyors.map((surveyor) => (
-                  <SurveyorCard 
+                {filteredSurveyors.map((surveyor, idx) => (
+                  <div
                     key={surveyor.id}
-                    surveyor={surveyor}
-                    onViewProfile={handleSelectSurveyor}
-                    onPreviewImage={handleOpenPreview}
-                  />
+                    className="animate-card-entrance h-full"
+                    style={{
+                      animationDelay: `${Math.min(idx * 55, 600)}ms`
+                    }}
+                  >
+                    <SurveyorCard 
+                      surveyor={surveyor}
+                      onViewProfile={handleSelectSurveyor}
+                      onPreviewImage={handleOpenPreview}
+                    />
+                  </div>
                 ))}
               </div>
             )}

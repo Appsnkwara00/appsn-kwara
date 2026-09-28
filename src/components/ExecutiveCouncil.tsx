@@ -33,7 +33,7 @@ export default function ExecutiveCouncil({ executives, onPreviewImage }: Executi
 
         {/* Executive Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-8">
-          {sortedExecutives.map((exec) => {
+          {sortedExecutives.map((exec, idx) => {
             const initial = exec.full_name
               ? exec.full_name.replace(/^(Surv\.|Engr\.|Mrs\.|Mr\.|Dr\.|Alhaji|\(Alh\))\s*/i, '').trim().charAt(0) || 'E'
               : 'E';
@@ -42,7 +42,10 @@ export default function ExecutiveCouncil({ executives, onPreviewImage }: Executi
               <div
                 key={exec.id}
                 id={`executive-card-${exec.id}`}
-                className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:border-emerald-800/30 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group"
+                className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:border-emerald-800/30 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group animate-card-entrance"
+                style={{
+                  animationDelay: `${idx * 120}ms`
+                }}
               >
                 {/* Photo frame with click-to-preview */}
                 <div className="p-4 pb-0">

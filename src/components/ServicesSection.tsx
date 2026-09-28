@@ -119,14 +119,17 @@ export default function ServicesSection({ onExploreAll, onSelectService, isFullP
 
         {/* 8-Card Grid (4 cols on lg, 2 cols on md, 1 col on sm) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {SURVEYING_SERVICES.map((service) => {
+          {SURVEYING_SERVICES.map((service, idx) => {
             const IconComponent = service.icon;
             return (
               <div
                 key={service.id}
                 id={`service-card-${service.id}`}
                 onClick={() => onSelectService && onSelectService(service.name)}
-                className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-emerald-900/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-emerald-900/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer animate-card-entrance"
+                style={{
+                  animationDelay: `${idx * 60}ms`
+                }}
               >
                 <div>
                   {/* Icon Circle */}

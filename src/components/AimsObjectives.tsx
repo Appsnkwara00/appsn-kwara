@@ -61,7 +61,10 @@ export default function AimsObjectives({ aims }: AimsObjectivesProps) {
             <div
               key={aim.id}
               id={`aim-item-${aim.display_order}`}
-              className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
+              className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 flex flex-col justify-between group animate-card-entrance"
+              style={{
+                animationDelay: `${Math.min(idx * 70, 500)}ms`
+              }}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">

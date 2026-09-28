@@ -144,7 +144,7 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
             
             {/* Vision & Mission Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-[#FAF9F5] rounded-2xl p-7 border border-slate-200/70 space-y-3">
+              <div className="bg-[#FAF9F5] rounded-2xl p-7 border border-slate-200/70 space-y-3 animate-card-entrance hover:shadow-md transition-all duration-300" style={{ animationDelay: '0ms' }}>
                 <div className="w-10 h-10 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
                   <Eye className="w-5 h-5" />
                 </div>
@@ -154,7 +154,7 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                 </p>
               </div>
 
-              <div className="bg-[#FAF9F5] rounded-2xl p-7 border border-slate-200/70 space-y-3">
+              <div className="bg-[#FAF9F5] rounded-2xl p-7 border border-slate-200/70 space-y-3 animate-card-entrance hover:shadow-md transition-all duration-300" style={{ animationDelay: '100ms' }}>
                 <div className="w-10 h-10 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
                   <Target className="w-5 h-5" />
                 </div>
@@ -164,7 +164,7 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                 </p>
               </div>
 
-              <div className="bg-[#FAF9F5] rounded-2xl p-7 border border-slate-200/70 space-y-3">
+              <div className="bg-[#FAF9F5] rounded-2xl p-7 border border-slate-200/70 space-y-3 animate-card-entrance hover:shadow-md transition-all duration-300" style={{ animationDelay: '200ms' }}>
                 <div className="w-10 h-10 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5" />
                 </div>

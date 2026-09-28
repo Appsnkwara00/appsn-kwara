@@ -111,10 +111,10 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
           <button
             id={`card-view-profile-${surveyor.id}`}
             onClick={() => onViewProfile(surveyor)}
-            className="flex-1 bg-[#0D3829] hover:bg-[#08281D] active:scale-98 text-white py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+            className="flex-1 bg-[#0D3829] hover:bg-[#08281D] active:scale-95 text-white py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group/btn"
           >
             <span>View Profile</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform duration-200" />
           </button>
 
           {/* WhatsApp click-to-chat button */}
@@ -126,7 +126,7 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
               id={`card-whatsapp-${surveyor.id}`}
               title={`Chat with ${surveyor.fullName} on WhatsApp`}
               aria-label={`Chat with ${surveyor.fullName} on WhatsApp`}
-              className="w-9 h-9 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-[#25D366] text-[#0D3829] hover:text-white flex items-center justify-center transition-all shrink-0 cursor-pointer shadow-2xs"
+              className="w-9 h-9 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-[#25D366] text-[#0D3829] hover:text-white flex items-center justify-center transition-all duration-200 hover:scale-110 shrink-0 cursor-pointer shadow-2xs"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.97.53 1.776.814 2.796.814 3.18 0 5.766-2.586 5.767-5.766.001-3.182-2.585-5.768-5.767-5.768zm3.385 8.163c-.145.407-.741.77-1.037.818-.28.046-.641.077-1.921-.453-1.636-.677-2.695-2.34-2.776-2.45-.08-.109-.661-.879-.661-1.674 0-.796.417-1.189.566-1.35.148-.161.325-.202.434-.202.108 0 .217.001.312.006.1.006.234-.038.366.279.136.327.464 1.132.505 1.214.041.082.068.178.014.286-.055.109-.082.177-.163.272-.082.096-.172.214-.246.287-.082.081-.168.169-.072.333.095.165.424.7.91 1.134.625.557 1.152.73 1.316.812.164.081.26.068.357-.041.096-.109.414-.482.525-.646.109-.164.218-.136.368-.082.15.054.952.449 1.115.531.163.082.272.122.312.19.041.068.041.394-.104.801zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.434 5.174L2 22l4.98-1.306C8.423 21.536 10.155 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>

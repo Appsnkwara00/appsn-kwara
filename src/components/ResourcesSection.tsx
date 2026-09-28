@@ -59,7 +59,7 @@ export default function ResourcesSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           
           {/* Card 1: 4 Steps to Secure Land */}
-          <div className="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-4">
+          <div className="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-4 animate-card-entrance" style={{ animationDelay: '0ms' }}>
             <div className="w-11 h-11 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
             </div>
@@ -87,7 +87,7 @@ export default function ResourcesSection() {
           </div>
 
           {/* Card 2: Anatomy of Genuine Survey Plan */}
-          <div className="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-4">
+          <div className="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-4 animate-card-entrance" style={{ animationDelay: '100ms' }}>
             <div className="w-11 h-11 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
               <FileCheck className="w-5 h-5" />
             </div>
@@ -115,7 +115,7 @@ export default function ResourcesSection() {
           </div>
 
           {/* Card 3: Warning Against Quackery */}
-          <div className="bg-white rounded-2xl p-7 border border-amber-200/80 bg-gradient-to-b from-amber-50/20 to-white shadow-xs space-y-4">
+          <div className="bg-white rounded-2xl p-7 border border-amber-200/80 bg-gradient-to-b from-amber-50/20 to-white shadow-xs space-y-4 animate-card-entrance" style={{ animationDelay: '200ms' }}>
             <div className="w-11 h-11 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5" />
             </div>

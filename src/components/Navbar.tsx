@@ -138,10 +138,11 @@ export default function Navbar({
                 e.preventDefault();
                 handleNavClick('directory');
               }}
-              className="flex items-center gap-2 bg-[#0B251D] hover:bg-[#071913] active:scale-98 text-white text-xs font-semibold px-4.5 py-2.5 rounded-full shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group"
+              className="flex items-center gap-2 bg-[#0B251D] hover:bg-[#071913] active:scale-95 text-white text-xs font-semibold px-4.5 py-2.5 rounded-full shadow-xs hover:shadow-md hover:shadow-emerald-950/20 transition-all duration-300 cursor-pointer group relative overflow-hidden"
             >
-              <span>Find Surveyor</span>
-              <ArrowRight className="w-3.5 h-3.5 text-emerald-300 group-hover:translate-x-0.5 transition-transform" />
+              <span className="relative z-10">Find Surveyor</span>
+              <ArrowRight className="w-3.5 h-3.5 text-emerald-300 group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/0 via-emerald-400/20 to-emerald-600/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none" />
             </a>
           </div>
 
