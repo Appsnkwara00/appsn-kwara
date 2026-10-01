@@ -38,6 +38,8 @@ export interface Executive {
   profile_image: string;
   bio?: string;
   display_order: number;
+  is_active?: boolean;
+  active?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -51,6 +53,56 @@ export interface AimObjective {
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface ServiceItem {
+  id: string;
+  name: string;
+  shortDesc: string;
+  fullDesc: string;
+  useCase: string;
+  iconName?: string;
+  display_order: number;
+  is_active?: boolean;
+}
+
+export interface VerificationPillar {
+  id: string;
+  title: string;
+  description: string;
+  iconName?: string;
+  display_order: number;
+}
+
+export interface AboutContent {
+  headlineBadge: string;
+  heroHeading: string;
+  leadParagraph: string;
+  visionTitle: string;
+  visionText: string;
+  missionTitle: string;
+  missionText: string;
+  coreValuesTitle: string;
+  coreValuesText: string;
+  heroPhoto: string;
+  yearsExperience: string;
+  yearsSubtitle: string;
+  secretariatAddress: string;
+  secretariatPhone: string;
+  secretariatEmail: string;
+}
+
+export interface SiteSettings {
+  logoUrl: string;
+  faviconUrl: string;
+  siteTitle: string;
+  tagline: string;
+  branchName: string;
+  heroHeadline: string;
+  heroSubtitle: string;
+  phone: string;
+  email: string;
+  address: string;
 }
 
 export interface AdminAccount {

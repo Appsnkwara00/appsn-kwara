@@ -6,18 +6,23 @@ interface NavbarProps {
   currentView: string;
   setView: (view: string) => void;
   onQuickSearchClick?: () => void;
+  logoUrl?: string;
+  branchName?: string;
 }
 
 export default function Navbar({ 
   currentView, 
   setView, 
-  onQuickSearchClick 
+  onQuickSearchClick,
+  logoUrl = '/logo.png',
+  branchName = 'APPSN Kwara'
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'directory', label: 'Find a Surveyor' },
+    { id: 'executives', label: 'Executives' },
     { id: 'services', label: 'Services' },
     { id: 'about', label: 'About Us' },
     { id: 'resources', label: 'Resources' },
@@ -61,7 +66,7 @@ export default function Navbar({
           >
             <div className="relative flex items-center justify-center w-12 h-12 rounded-full overflow-hidden border border-emerald-950/15 bg-white p-0.5 shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-300">
               <img 
-                src="/logo.png" 
+                src={logoUrl || "/logo.png"} 
                 alt="APPSN Kwara State Official Seal" 
                 className="object-contain w-full h-full"
                 referrerPolicy="no-referrer"
@@ -69,7 +74,7 @@ export default function Navbar({
             </div>
             <div>
               <span className="text-lg font-extrabold text-[#0D3829] tracking-tight block leading-tight font-serif">
-                APPSN Kwara
+                {branchName}
               </span>
               <span className="text-[8.5px] uppercase tracking-wider text-slate-500 font-semibold block leading-tight mt-0.5">
                 ASSOCIATION OF PRIVATE PRACTICING SURVEYORS OF NIGERIA, KWARA STATE

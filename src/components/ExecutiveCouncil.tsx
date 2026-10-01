@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { Executive } from '../types';
-import { ShieldCheck, ZoomIn } from 'lucide-react';
+import { ShieldCheck, ArrowRight } from 'lucide-react';
+import ExecutiveCard from './ExecutiveCard';
 
 interface ExecutiveCouncilProps {
   executives: Executive[];
   onPreviewImage?: (imageUrl: string, title: string, subtitle?: string) => void;
+  onViewAll?: () => void;
 }
 
-export default function ExecutiveCouncil({ executives, onPreviewImage }: ExecutiveCouncilProps) {
-  // Sort executives: Chairman/President (1), Vice Chairman (2), Secretary (3)
-  const sortedExecutives = [...executives].sort((a, b) => a.display_order - b.display_order);
+export default function ExecutiveCouncil({ executives, onPreviewImage, onViewAll }: ExecutiveCouncilProps) {
+  // Homepage displays only the 3 major executives: Chairman, Vice Chairman, Secretary
+  const majorExecutives = useMemo(() => {
+    // Filter active executives
+    const active = executives.filter(e => e.is_active !== false && e.active !== false);
+    const sorted = [...active].sort((a, b) => a.display_order - b.display_order);
+
+    // Identify Chairman / President
+    const chairman = sorted.find(e => /chairman|president/i.test(e.position) && !/vice/i.test(e.position)) || sorted[0];
+    // Identify Vice Chairman / Vice President
+    const vice = sorted.find(e => /vice/i.test(e.position)) || sorted.find(e => e.id !== chairman?.id);
+    // Identify Secretary
+    const secretary = sorted.find(e => /secretary/i.test(e.position)) || sorted.find(e => e.id !== chairman?.id && e.id !== vice?.id);
+
+    const picked: Executive[] = [];
+    if (chairman) picked.push(chairman);
+    if (vice && !picked.some(e => e.id === vice.id)) picked.push(vice);
+    if (secretary && !picked.some(e => e.id === secretary.id)) picked.push(secretary);
+
+    // If fewer than 3 found, backfill from remaining sorted executives up to 3
+    for (const item of sorted) {
+      if (picked.length >= 3) break;
+      if (!picked.some(e => e.id === item.id)) picked.push(item);
+    }
+
+    return picked.sort((a, b) => a.display_order - b.display_order);
+  }, [executives]);
 
   return (
     <section className="py-20 sm:py-24 bg-[#FAF9F5] border-t border-slate-200/60" id="executive-council">
@@ -31,95 +57,35 @@ export default function ExecutiveCouncil({ executives, onPreviewImage }: Executi
           </p>
         </div>
 
-        {/* Executive Cards Grid */}
+        {/* Executive Cards Grid (3 Major Executives on Homepage) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-8">
-          {sortedExecutives.map((exec, idx) => {
-            const initial = exec.full_name
-              ? exec.full_name.replace(/^(Surv\.|Engr\.|Mrs\.|Mr\.|Dr\.|Alhaji|\(Alh\))\s*/i, '').trim().charAt(0) || 'E'
-              : 'E';
-
-            return (
-              <div
-                key={exec.id}
-                id={`executive-card-${exec.id}`}
-                className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:border-emerald-800/30 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group animate-card-entrance"
-                style={{
-                  animationDelay: `${idx * 120}ms`
-                }}
-              >
-                {/* Photo frame with click-to-preview */}
-                <div className="p-4 pb-0">
-                  <div 
-                    onClick={() => {
-                      if (exec.profile_image && onPreviewImage) {
-                        onPreviewImage(exec.profile_image, exec.full_name, `${exec.position} • APPSN Kwara`);
-                      }
-                    }}
-                    className="relative aspect-[4/3.5] w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in group/photo"
-                    title="Click to enlarge photo"
-                  >
-                    {exec.profile_image ? (
-                      <>
-                        <img
-                          src={exec.profile_image}
-                          alt={exec.full_name}
-                          className="w-full h-full object-cover object-center group-hover/photo:scale-105 transition-transform duration-500 ease-out"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center">
-                          <div className="bg-black/60 backdrop-blur-xs text-white p-2.5 rounded-full transform scale-90 group-hover/photo:scale-100 transition-transform">
-                            <ZoomIn className="w-5 h-5 text-white" />
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EBF4F0] to-[#d8ece2] text-[#0D3829]">
-                        <div className="w-16 h-16 rounded-full bg-[#0D3829] text-white flex items-center justify-center font-serif text-2xl font-bold shadow-xs">
-                          {initial}
-                        </div>
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-[#0D3829]/80 font-bold mt-2">
-                          APPSN KWARA
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Position Pill */}
-                    <div className="absolute top-3 left-3 bg-[#0D3829]/90 backdrop-blur-md text-emerald-300 text-[11px] font-mono uppercase tracking-wider font-bold px-3 py-1 rounded-full shadow-sm">
-                      {exec.position}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="text-lg sm:text-xl font-serif font-bold text-slate-900 group-hover:text-[#0D3829] transition-colors leading-snug">
-                      {exec.full_name}
-                    </h3>
-                    
-                    <div className="text-xs font-mono font-bold text-emerald-800 uppercase tracking-wide">
-                      {exec.position} • Executive Council
-                    </div>
-
-                    {exec.bio && (
-                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">
-                        {exec.bio}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-mono">
-                    <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      SURCON Verified
-                    </span>
-                    <span>APPSN Kwara State</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {majorExecutives.map((exec, idx) => (
+            <ExecutiveCard
+              key={exec.id}
+              executive={exec}
+              index={idx}
+              onPreviewImage={onPreviewImage}
+            />
+          ))}
         </div>
+
+        {/* View All Executives Button */}
+        {onViewAll && (
+          <div className="mt-12 sm:mt-14 text-center">
+            <a
+              href="/executives"
+              onClick={(e) => {
+                e.preventDefault();
+                onViewAll();
+              }}
+              className="inline-flex items-center justify-center gap-2.5 bg-[#0D3829] hover:bg-[#08281D] text-white text-xs sm:text-sm font-semibold px-8 py-3.5 rounded-full shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group w-full sm:w-auto"
+              id="btn-view-all-executives"
+            >
+              <span>View All Executives</span>
+              <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </div>
+        )}
 
       </div>
     </section>

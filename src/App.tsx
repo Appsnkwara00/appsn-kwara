@@ -10,24 +10,45 @@ import ContactSection from './components/ContactSection';
 import CtaBanner from './components/CtaBanner';
 import Footer from './components/Footer';
 import ExecutiveCouncil from './components/ExecutiveCouncil';
+import ExecutivesPage from './components/ExecutivesPage';
 import AimsObjectives from './components/AimsObjectives';
 import VerificationGuide from './components/VerificationGuide';
 import ImagePreviewModal from './components/ImagePreviewModal';
 import AdminPortal from './components/AdminPortal';
 
-import { Surveyor, AdminAccount, ContactMessage, Executive, AimObjective } from './types';
-import { DEFAULT_ADMINS, INITIAL_MESSAGES, KWARA_LGAS, SPECIALIZATIONS, INITIAL_EXECUTIVES, INITIAL_AIMS_OBJECTIVES } from './data';
+import { 
+  Surveyor, AdminAccount, ContactMessage, Executive, AimObjective,
+  ServiceItem, VerificationPillar, AboutContent, SiteSettings
+} from './types';
+import { 
+  DEFAULT_ADMINS, INITIAL_MESSAGES, KWARA_LGAS, SPECIALIZATIONS, 
+  INITIAL_EXECUTIVES, INITIAL_AIMS_OBJECTIVES,
+  INITIAL_SERVICES, INITIAL_VERIFICATION_PILLARS,
+  INITIAL_ABOUT_CONTENT, INITIAL_SITE_SETTINGS
+} from './data';
 import { 
   fetchSurveyors, 
   subscribeToSurveyorChanges, 
   fetchExecutives, 
   subscribeToExecutiveChanges,
-  fetchAimsObjectives,
+  fetchAimsObjectives, 
   subscribeToAimsChanges,
-  saveExecutiveToSupabase,
+  saveExecutiveToSupabase, 
   deleteExecutiveFromSupabase,
-  saveAimToSupabase,
-  deleteAimFromSupabase
+  saveAimToSupabase, 
+  deleteAimFromSupabase,
+  fetchServices, 
+  saveServiceToDb, 
+  deleteServiceFromDb,
+  fetchVerificationPillars, 
+  saveVerificationPillarToDb, 
+  deleteVerificationPillarFromDb,
+  fetchAboutContent, 
+  saveAboutContentToDb,
+  fetchSiteSettings, 
+  saveSiteSettings,
+  subscribeToServicesChanges, 
+  subscribeToSiteSettingsChanges
 } from './lib/supabase';
 import { 
   getViewFromLocation, 
@@ -92,6 +113,12 @@ export default function App() {
   // Executives & Aims live state from Supabase
   const [executives, setExecutives] = useState<Executive[]>(INITIAL_EXECUTIVES);
   const [aims, setAims] = useState<AimObjective[]>(INITIAL_AIMS_OBJECTIVES);
+
+  // Dynamic Site Details State (Controlled by Admin & Saved to Database)
+  const [services, setServices] = useState<ServiceItem[]>(INITIAL_SERVICES);
+  const [pillars, setPillars] = useState<VerificationPillar[]>(INITIAL_VERIFICATION_PILLARS);
+  const [aboutContent, setAboutContent] = useState<AboutContent>(INITIAL_ABOUT_CONTENT);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SITE_SETTINGS);
 
   // Admins & Messages local states
   const [admins, setAdmins] = useState<AdminAccount[]>([]);
@@ -182,11 +209,55 @@ export default function App() {
     }
   };
 
+  // 4. Fetch services from Supabase
+  const loadSupabaseServices = async () => {
+    try {
+      const list = await fetchServices();
+      if (list && list.length > 0) setServices(list);
+    } catch (err) {
+      console.error('Failed to load services:', err);
+    }
+  };
+
+  // 5. Fetch verification pillars from Supabase
+  const loadSupabasePillars = async () => {
+    try {
+      const list = await fetchVerificationPillars();
+      if (list && list.length > 0) setPillars(list);
+    } catch (err) {
+      console.error('Failed to load verification pillars:', err);
+    }
+  };
+
+  // 6. Fetch about content from Supabase
+  const loadSupabaseAbout = async () => {
+    try {
+      const content = await fetchAboutContent();
+      if (content) setAboutContent(content);
+    } catch (err) {
+      console.error('Failed to load about content:', err);
+    }
+  };
+
+  // 7. Fetch site settings from Supabase
+  const loadSupabaseSettings = async () => {
+    try {
+      const settings = await fetchSiteSettings();
+      if (settings) setSiteSettings(settings);
+    } catch (err) {
+      console.error('Failed to load site settings:', err);
+    }
+  };
+
   useEffect(() => {
     // Initial fetch from live Supabase database
     loadSupabaseSurveyors();
     loadSupabaseExecutives();
     loadSupabaseAims();
+    loadSupabaseServices();
+    loadSupabasePillars();
+    loadSupabaseAbout();
+    loadSupabaseSettings();
 
     // Subscribe to real-time changes
     const surveyorSub = subscribeToSurveyorChanges((payload) => {
@@ -202,6 +273,14 @@ export default function App() {
     const aimsSub = subscribeToAimsChanges((payload) => {
       console.log('Realtime change in aims:', payload);
       loadSupabaseAims();
+    });
+
+    const servicesSub = subscribeToServicesChanges(() => {
+      loadSupabaseServices();
+    });
+
+    const settingsSub = subscribeToSiteSettingsChanges(() => {
+      loadSupabaseSettings();
     });
 
     // Load admin accounts
@@ -242,8 +321,28 @@ export default function App() {
       surveyorSub.unsubscribe();
       execSub.unsubscribe();
       aimsSub.unsubscribe();
+      servicesSub.unsubscribe();
+      settingsSub.unsubscribe();
     };
   }, []);
+
+  // Keep browser title and favicon synced dynamically to siteSettings
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (siteSettings.siteTitle) {
+        document.title = siteSettings.siteTitle;
+      }
+      if (siteSettings.faviconUrl) {
+        let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null;
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          document.head.appendChild(link);
+        }
+        link.href = siteSettings.faviconUrl;
+      }
+    }
+  }, [siteSettings]);
 
   // Handle browser Back/Forward navigation (popstate) and URL query synchronization
   useEffect(() => {
@@ -380,6 +479,58 @@ export default function App() {
     await deleteAimFromSupabase(id);
   };
 
+  // Practice Services Handlers
+  const handleSaveService = async (service: ServiceItem) => {
+    const exists = services.some(s => s.id === service.id);
+    let updated: ServiceItem[];
+    if (exists) {
+      updated = services.map(s => s.id === service.id ? service : s);
+    } else {
+      updated = [...services, service];
+    }
+    updated.sort((a, b) => a.display_order - b.display_order);
+    setServices(updated);
+    await saveServiceToDb(service);
+  };
+
+  const handleDeleteService = async (id: string) => {
+    const updated = services.filter(s => s.id !== id);
+    setServices(updated);
+    await deleteServiceFromDb(id);
+  };
+
+  // Validation Guide Pillars Handlers
+  const handleSavePillar = async (pillar: VerificationPillar) => {
+    const exists = pillars.some(p => p.id === pillar.id);
+    let updated: VerificationPillar[];
+    if (exists) {
+      updated = pillars.map(p => p.id === pillar.id ? pillar : p);
+    } else {
+      updated = [...pillars, pillar];
+    }
+    updated.sort((a, b) => a.display_order - b.display_order);
+    setPillars(updated);
+    await saveVerificationPillarToDb(pillar);
+  };
+
+  const handleDeletePillar = async (id: string) => {
+    const updated = pillars.filter(p => p.id !== id);
+    setPillars(updated);
+    await deleteVerificationPillarFromDb(id);
+  };
+
+  // About APPSN Handlers
+  const handleSaveAboutContent = async (content: AboutContent) => {
+    setAboutContent(content);
+    await saveAboutContentToDb(content);
+  };
+
+  // Branding & Site Settings Handlers
+  const handleSaveSiteSettings = async (settings: SiteSettings) => {
+    setSiteSettings(settings);
+    await saveSiteSettings(settings);
+  };
+
   const handleAddAdmin = (username: string, email: string, role: 'Super Admin' | 'Branch Admin') => {
     const newAdmin: AdminAccount = {
       id: `admin-${Date.now()}`,
@@ -508,6 +659,8 @@ export default function App() {
         currentView={view} 
         setView={(newView) => navigateTo(newView)} 
         onQuickSearchClick={() => navigateTo('directory')}
+        logoUrl={siteSettings.logoUrl}
+        branchName={siteSettings.branchName}
       />
 
       {/* 2. MAIN APPLICATION CONTENT */}
@@ -540,6 +693,9 @@ export default function App() {
                 lgasCovered: 16,
                 verifiedPercentage: 100,
               }}
+              tagline={siteSettings.tagline}
+              headline={siteSettings.heroHeadline}
+              subtitle={siteSettings.heroSubtitle}
               onSearch={() => navigateTo('directory')}
             />
 
@@ -547,6 +703,7 @@ export default function App() {
             <ExecutiveCouncil 
               executives={executives}
               onPreviewImage={handleOpenPreview}
+              onViewAll={() => navigateTo('executives')}
             />
 
             {/* 3. APPSN KWARA AIMS & OBJECTIVES */}
@@ -556,6 +713,7 @@ export default function App() {
 
             {/* 4. WHY HIRE AN APPSN SURVEYOR / VERIFICATION GUIDE */}
             <VerificationGuide 
+              pillars={pillars}
               onSearchSurveyor={() => navigateTo('directory')}
             />
 
@@ -693,6 +851,7 @@ export default function App() {
         {view === 'services' && (
           <div id="view-services">
             <ServicesSection 
+              services={services}
               onExploreAll={() => navigateTo('directory')}
             />
             <CtaBanner 
@@ -709,8 +868,26 @@ export default function App() {
           <div id="view-about">
             <AboutSection 
               isHomePreview={false}
+              aboutContent={aboutContent}
+              executives={executives}
               onLearnMore={() => navigateTo('directory')}
               onContactClick={() => navigateTo('contact')}
+              onViewExecutives={() => navigateTo('executives')}
+            />
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* VIEW: EXECUTIVES (Dedicated Council Page)                  */}
+        {/* ========================================================= */}
+        {view === 'executives' && (
+          <div id="view-executives">
+            <ExecutivesPage 
+              executives={executives}
+              onPreviewImage={handleOpenPreview}
+              onNavigateHome={() => navigateTo('home')}
+              onFindSurveyor={() => navigateTo('directory')}
+              onContact={() => navigateTo('contact')}
             />
           </div>
         )}
@@ -748,6 +925,10 @@ export default function App() {
               messages={messages}
               executives={executives}
               aims={aims}
+              services={services}
+              pillars={pillars}
+              aboutContent={aboutContent}
+              siteSettings={siteSettings}
               onAddSurveyor={handleAddSurveyor}
               onUpdateSurveyor={handleUpdateSurveyor}
               onDeleteSurveyor={handleDeleteSurveyor}
@@ -755,6 +936,12 @@ export default function App() {
               onDeleteExecutive={handleDeleteExecutive}
               onSaveAim={handleSaveAim}
               onDeleteAim={handleDeleteAim}
+              onSaveService={handleSaveService}
+              onDeleteService={handleDeleteService}
+              onSavePillar={handleSavePillar}
+              onDeletePillar={handleDeletePillar}
+              onSaveAboutContent={handleSaveAboutContent}
+              onSaveSiteSettings={handleSaveSiteSettings}
               onAddAdmin={handleAddAdmin}
               onDeleteAdmin={handleDeleteAdmin}
               onUpdateMessageStatus={handleUpdateMessageStatus}
@@ -785,7 +972,15 @@ export default function App() {
       />
 
       {/* 5. FOOTER */}
-      <Footer setView={(newView) => navigateTo(newView)} currentView={view} />
+      <Footer 
+        setView={(newView) => navigateTo(newView)} 
+        currentView={view} 
+        logoUrl={siteSettings.logoUrl}
+        branchName={siteSettings.branchName}
+        phone={siteSettings.phone}
+        email={siteSettings.email}
+        address={siteSettings.address}
+      />
 
     </div>
   );

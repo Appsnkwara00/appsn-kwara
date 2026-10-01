@@ -1,4 +1,4 @@
-export type AppView = 'home' | 'directory' | 'services' | 'about' | 'resources' | 'contact' | 'admin';
+export type AppView = 'home' | 'directory' | 'services' | 'about' | 'executives' | 'resources' | 'contact' | 'admin';
 
 export interface RouteMeta {
   view: AppView;
@@ -41,6 +41,14 @@ export const ROUTES: Record<AppView, RouteMeta> = {
     title: 'About Us & Branch Secretariat | APPSN Kwara State',
     description: 'Learn about the Association of Private Practicing Surveyors of Nigeria (APPSN) Kwara State Branch, its mission, executive council, and 40+ years of dedicated service.',
     aliases: ['/about-us']
+  },
+  executives: {
+    view: 'executives',
+    path: '/executives',
+    label: 'Executives',
+    title: 'APPSN Kwara Executive Council | Association Leadership',
+    description: 'Meet the executive council responsible for representing and advancing the interests of private practicing surveyors across Kwara State.',
+    aliases: ['/executive-council', '/execs', '/leadership']
   },
   resources: {
     view: 'resources',
@@ -105,6 +113,7 @@ export function getViewFromLocation(pathname: string, search: string = ''): AppV
   }
 
   // Fallback matching partial keywords in path
+  if (decoded.includes('exec') || decoded.includes('leadership')) return 'executives';
   if (decoded.includes('surveyor') || decoded.includes('find') || decoded.includes('directory')) return 'directory';
   if (decoded.includes('service')) return 'services';
   if (decoded.includes('about')) return 'about';

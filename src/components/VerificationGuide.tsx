@@ -1,14 +1,48 @@
 import React from 'react';
 import { 
   ShieldCheck, FileCheck, AlertTriangle, Stamp, 
-  MapPin, CheckCircle2, Search, ArrowRight, Lock
+  MapPin, CheckCircle2, Search, ArrowRight, Lock,
+  Award, Compass, CheckCircle
 } from 'lucide-react';
+import { VerificationPillar } from '../types';
+import { INITIAL_VERIFICATION_PILLARS } from '../data';
 
 interface VerificationGuideProps {
   onSearchSurveyor?: () => void;
+  pillars?: VerificationPillar[];
 }
 
-export default function VerificationGuide({ onSearchSurveyor }: VerificationGuideProps) {
+function getPillarIcon(iconName?: string) {
+  switch (iconName) {
+    case 'Stamp':
+      return <Stamp className="w-6 h-6 text-[#0D3829]" />;
+    case 'AlertTriangle':
+      return <AlertTriangle className="w-6 h-6 text-[#0D3829]" />;
+    case 'FileCheck':
+      return <FileCheck className="w-6 h-6 text-[#0D3829]" />;
+    case 'Lock':
+      return <Lock className="w-6 h-6 text-[#0D3829]" />;
+    case 'Compass':
+      return <Compass className="w-6 h-6 text-[#0D3829]" />;
+    case 'Award':
+      return <Award className="w-6 h-6 text-[#0D3829]" />;
+    case 'CheckCircle':
+    case 'CheckCircle2':
+      return <CheckCircle2 className="w-6 h-6 text-[#0D3829]" />;
+    case 'ShieldCheck':
+    default:
+      return <ShieldCheck className="w-6 h-6 text-[#0D3829]" />;
+  }
+}
+
+export default function VerificationGuide({ 
+  onSearchSurveyor,
+  pillars
+}: VerificationGuideProps) {
+  const displayPillars = pillars && pillars.length > 0
+    ? [...pillars].sort((a, b) => a.display_order - b.display_order)
+    : INITIAL_VERIFICATION_PILLARS;
+
   return (
     <section className="py-20 sm:py-24 bg-white border-t border-slate-200/60" id="verification-guide">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
@@ -24,57 +58,25 @@ export default function VerificationGuide({ onSearchSurveyor }: VerificationGuid
           </p>
         </div>
 
-        {/* 4 Core Pillars of Statutory Protection */}
+        {/* Dynamic Core Pillars of Statutory Protection */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '0ms' }}>
-            <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
-              <ShieldCheck className="w-6 h-6 text-[#0D3829]" />
+          {displayPillars.map((pillar, idx) => (
+            <div 
+              key={pillar.id}
+              className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" 
+              style={{ animationDelay: `${idx * 100}ms` }}
+            >
+              <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
+                {getPillarIcon(pillar.iconName)}
+              </div>
+              <h3 className="text-base font-serif font-bold text-slate-900">
+                {pillar.title}
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                {pillar.description}
+              </p>
             </div>
-            <h3 className="text-base font-serif font-bold text-slate-900">
-              Legal Court Admissibility
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Only survey plans prepared, signed, and sealed by SURCON-registered surveyors are recognized as legal evidence in Nigerian courts and Kwara State registries.
-            </p>
-          </div>
-
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '100ms' }}>
-            <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
-              <Stamp className="w-6 h-6 text-[#0D3829]" />
-            </div>
-            <h3 className="text-base font-serif font-bold text-slate-900">
-              Authentic Surcon Seal & Beacons
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Every genuine boundary demarcation is monumented with traceable survey beacons bearing registered surveyor identification and strict geodetic coordinates.
-            </p>
-          </div>
-
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '200ms' }}>
-            <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
-              <AlertTriangle className="w-6 h-6 text-[#0D3829]" />
-            </div>
-            <h3 className="text-base font-serif font-bold text-slate-900">
-              Zero Tolerance for Quackery
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Unlicensed practitioners cause destructive land disputes, boundary overlaps, and loss of property. APPSN membership guarantees authenticated professional accountability.
-            </p>
-          </div>
-
-          <div className="bg-[#FAF9F5] rounded-2xl p-6 border border-slate-200/80 space-y-3 hover:border-emerald-800/40 hover:shadow-md transition-all duration-300 animate-card-entrance" style={{ animationDelay: '300ms' }}>
-            <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
-              <FileCheck className="w-6 h-6 text-[#0D3829]" />
-            </div>
-            <h3 className="text-base font-serif font-bold text-slate-900">
-              Official Survey Lodgement
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Survey records are officially lodged with the Kwara State Office of the Surveyor-General, safeguarding your land title in government cadastral archives permanently.
-            </p>
-          </div>
-
+          ))}
         </div>
 
         {/* Verification Steps Card */}

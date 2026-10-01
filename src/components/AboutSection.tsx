@@ -1,6 +1,7 @@
 import React from 'react';
-import { EXECUTIVE_COMMITTEE } from '../data';
-import aboutSurveyorPhoto from '../assets/images/appsn_about_surveyors_1790027112897.jpg';
+import { EXECUTIVE_COMMITTEE, INITIAL_ABOUT_CONTENT } from '../data';
+import defaultAboutSurveyorPhoto from '../assets/images/appsn_about_surveyors_1790027112897.jpg';
+import { AboutContent, Executive } from '../types';
 import { 
   ShieldCheck, 
   ArrowRight, 
@@ -18,9 +19,31 @@ interface AboutSectionProps {
   isHomePreview?: boolean;
   onLearnMore?: () => void;
   onContactClick?: () => void;
+  onViewExecutives?: () => void;
+  aboutContent?: AboutContent;
+  executives?: Executive[];
 }
 
-export default function AboutSection({ isHomePreview = false, onLearnMore, onContactClick }: AboutSectionProps) {
+export default function AboutSection({ 
+  isHomePreview = false, 
+  onLearnMore, 
+  onContactClick,
+  onViewExecutives,
+  aboutContent,
+  executives
+}: AboutSectionProps) {
+  const content = aboutContent || INITIAL_ABOUT_CONTENT;
+  const photo = content.heroPhoto || defaultAboutSurveyorPhoto;
+
+  const displayExecs = executives && executives.length > 0
+    ? [...executives].sort((a, b) => a.display_order - b.display_order).map(e => ({
+        role: e.position,
+        name: e.full_name,
+        image: e.profile_image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200&h=200',
+        msg: e.bio || 'Promoting surveying excellence across Kwara State.'
+      }))
+    : EXECUTIVE_COMMITTEE;
+
   return (
     <section className="py-16 sm:py-24 bg-white border-b border-slate-200/70" id="appsn-about-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20 sm:space-y-24">
@@ -34,7 +57,7 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
               {/* Surveyor Photo */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-50 aspect-[4/3.8] bg-slate-100 group">
                 <img
-                  src={aboutSurveyorPhoto}
+                  src={photo}
                   alt="APPSN Kwara professional surveyors conducting field survey"
                   className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
                   referrerPolicy="no-referrer"
@@ -49,13 +72,13 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                     <Award className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xl font-bold font-serif leading-tight">40+ Years</div>
-                    <div className="text-xs text-emerald-200/80 font-medium">of Dedicated Service</div>
+                    <div className="text-xl font-bold font-serif leading-tight">{content.yearsExperience}</div>
+                    <div className="text-xs text-emerald-200/80 font-medium">{content.yearsSubtitle || 'of Dedicated Service'}</div>
                   </div>
                 </div>
                 <div className="pt-2 border-t border-emerald-900/60 text-[11px] text-emerald-100/90 font-medium flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <span>Certified SURCON Practitioners</span>
+                  <span>{content.headlineBadge || 'Certified SURCON Practitioners'}</span>
                 </div>
               </div>
 
@@ -70,12 +93,12 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                 — ABOUT APPSN KWARA
               </span>
               <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-serif font-bold text-[#0B251D] tracking-tight leading-[1.18]">
-                Promoting Professionalism in the Surveying Profession
+                {content.heroHeading}
               </h2>
             </div>
 
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              The Association of Private Practicing Surveyors of Nigeria (APPSN) Kwara State Branch is the premier professional body committed to upholding high ethical benchmarks, precision surveying, and public title security in private practice.
+              {content.leadParagraph}
             </p>
 
             {/* 3 Value Rows matching the reference design */}
@@ -148,9 +171,9 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                 <div className="w-10 h-10 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
                   <Eye className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 font-serif">Our Vision</h3>
+                <h3 className="text-lg font-bold text-slate-900 font-serif">{content.visionTitle || 'Our Vision'}</h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  To build an orderly, legally secure, and technology-driven geospatial environment in Kwara State where land boundaries are indisputable, real estate investments thrive, and private surveying remains a trusted bedrock of societal planning.
+                  {content.visionText}
                 </p>
               </div>
 
@@ -158,9 +181,9 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                 <div className="w-10 h-10 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
                   <Target className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 font-serif">Our Mission</h3>
+                <h3 className="text-lg font-bold text-slate-900 font-serif">{content.missionTitle || 'Our Mission'}</h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  To unite registered private practicing surveyors, foster peer collaboration, eliminate quackery through stringent public awareness, and guarantee that every survey document originating from our members meets the highest statutory requirements.
+                  {content.missionText}
                 </p>
               </div>
 
@@ -168,11 +191,9 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                 <div className="w-10 h-10 rounded-xl bg-[#EBF4F0] text-[#0D3829] flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 font-serif">Core Values</h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  <strong>Accuracy:</strong> We believe millimeter precision matters. <br />
-                  <strong>Integrity:</strong> Honest boundary demarcation without compromise. <br />
-                  <strong>Ethics:</strong> Full compliance with SURCON scale of fees and professional ethics.
+                <h3 className="text-lg font-bold text-slate-900 font-serif">{content.coreValuesTitle || 'Core Values'}</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                  {content.coreValuesText}
                 </p>
               </div>
             </div>
@@ -192,7 +213,7 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                {EXECUTIVE_COMMITTEE.map((exec, idx) => (
+                {displayExecs.map((exec, idx) => (
                   <div key={idx} className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col items-center text-center space-y-4 hover:shadow-md hover:border-emerald-900/30 transition-all">
                     <div className="relative">
                       <img
@@ -219,6 +240,22 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                   </div>
                 ))}
               </div>
+
+              {onViewExecutives && (
+                <div className="text-center pt-2">
+                  <a
+                    href="/executives"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onViewExecutives();
+                    }}
+                    className="inline-flex items-center gap-2 bg-[#0D3829] hover:bg-[#08281D] text-white text-xs sm:text-sm font-semibold px-6 py-3 rounded-full shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group"
+                  >
+                    <span>Meet the Full Executive Council</span>
+                    <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Secretariat Information Banner */}
@@ -246,7 +283,10 @@ export default function AboutSection({ isHomePreview = false, onLearnMore, onCon
                     </button>
                   )}
                   <div className="text-xs text-emerald-200/90 bg-emerald-950/60 p-3 rounded-xl border border-emerald-800/60">
-                    <p className="font-semibold text-white">Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara.</p>
+                    <p className="font-semibold text-white">{content.secretariatAddress || 'Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara.'}</p>
+                    {content.secretariatPhone && (
+                      <p className="text-[11px] text-emerald-300 mt-1">{content.secretariatPhone}</p>
+                    )}
                   </div>
                 </div>
               </div>

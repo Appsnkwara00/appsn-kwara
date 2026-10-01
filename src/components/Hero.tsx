@@ -18,6 +18,9 @@ interface HeroProps {
     lgasCovered: number;
     verifiedPercentage: number;
   };
+  tagline?: string;
+  headline?: string;
+  subtitle?: string;
 }
 
 export default function Hero({
@@ -30,7 +33,10 @@ export default function Hero({
     totalSurveyors: 60,
     lgasCovered: 16,
     verifiedPercentage: 100
-  }
+  },
+  tagline = "TRUSTED / VERIFIED / PROFESSIONAL",
+  headline = "Find a Registered Surveyor in Kwara",
+  subtitle = "Connect with verified and registered practising surveyors across Kwara State. Get professional support for your land, property and construction needs."
 }: HeroProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,19 +124,18 @@ export default function Hero({
               {/* Tagline / Eyebrow */}
               <div className="inline-flex items-center">
                 <span className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-[#0A261D] uppercase">
-                  TRUSTED &nbsp;/&nbsp; VERIFIED &nbsp;/&nbsp; PROFESSIONAL
+                  {tagline}
                 </span>
               </div>
 
               {/* Main Title */}
               <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-serif font-bold text-[#0A261D] tracking-tight leading-[1.08]">
-                Find a Registered <br />
-                Surveyor in Kwara
+                {headline}
               </h1>
 
               {/* Subtitle */}
               <p className="text-slate-600 text-sm sm:text-[15px] lg:text-base leading-relaxed max-w-xl font-normal">
-                Connect with verified and registered practising surveyors across Kwara State. Get professional support for your land, property and construction needs.
+                {subtitle}
               </p>
 
               {/* Floating Search & Filter Bar */}

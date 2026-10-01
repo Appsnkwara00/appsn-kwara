@@ -12,7 +12,10 @@ import {
   CheckCircle
 } from 'lucide-react';
 
+import { ServiceItem } from '../types';
+
 interface ServicesSectionProps {
+  services?: ServiceItem[];
   onExploreAll?: () => void;
   onSelectService?: (serviceName: string) => void;
   isFullPage?: boolean;
@@ -85,7 +88,31 @@ export const SURVEYING_SERVICES = [
   }
 ];
 
-export default function ServicesSection({ onExploreAll, onSelectService, isFullPage = false }: ServicesSectionProps) {
+export function getServiceIcon(iconName?: string) {
+  switch (iconName) {
+    case 'Mountain': return Mountain;
+    case 'Home': return Home;
+    case 'Map': return Map;
+    case 'Waves': return Waves;
+    case 'Crosshair': return Crosshair;
+    case 'FileCheck': return FileCheck;
+    case 'ShieldCheck': return ShieldCheck;
+    case 'Compass':
+    default:
+      return Compass;
+  }
+}
+
+export default function ServicesSection({ 
+  services,
+  onExploreAll, 
+  onSelectService, 
+  isFullPage = false 
+}: ServicesSectionProps) {
+  const displayServices = services && services.length > 0 
+    ? services.filter(s => s.is_active !== false)
+    : SURVEYING_SERVICES;
+
   return (
     <section className={`py-16 sm:py-24 ${isFullPage ? 'bg-white' : 'bg-[#FAF9F5]'} border-b border-slate-200/70`} id="appsn-services">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,8 +146,8 @@ export default function ServicesSection({ onExploreAll, onSelectService, isFullP
 
         {/* 8-Card Grid (4 cols on lg, 2 cols on md, 1 col on sm) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {SURVEYING_SERVICES.map((service, idx) => {
-            const IconComponent = service.icon;
+          {displayServices.map((service: any, idx) => {
+            const IconComponent = typeof service.icon === 'function' ? service.icon : getServiceIcon(service.iconName);
             return (
               <div
                 key={service.id}

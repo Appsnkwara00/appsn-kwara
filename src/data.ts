@@ -318,3 +318,148 @@ export const EXECUTIVE_COMMITTEE = INITIAL_EXECUTIVES.map(e => ({
   image: e.profile_image,
   msg: e.bio
 }));
+
+export const INITIAL_SERVICES: import('./types').ServiceItem[] = [
+  {
+    id: 'boundary',
+    name: 'Land Ownership & Boundary',
+    shortDesc: 'Precise boundary delineation, beacon layout, and perimeter validation to safeguard title ownership.',
+    fullDesc: 'Boundary and perimeter determination using high-precision GNSS RTK and total station instrumentation. Essential for land acquisition, dispute prevention, and title perfection with the Kwara State Ministry of Housing & Urban Development.',
+    useCase: 'Residential land acquisition, perimeter fencing, farm demarcations, and perimeter disputes resolution.',
+    iconName: 'Compass',
+    display_order: 1,
+    is_active: true
+  },
+  {
+    id: 'topographic',
+    name: 'Topographic Survey',
+    shortDesc: 'Contour generation, natural elevation mapping, and relief detail for architecture and civil works.',
+    fullDesc: 'Comprehensive mapping of natural and man-made site features, ground contours, slope variations, and terrain elevations to assist architects, structural engineers, and site planners.',
+    useCase: 'Commercial estate planning, road design, flood risk modelling, and agricultural slope analysis.',
+    iconName: 'Mountain',
+    display_order: 2,
+    is_active: true
+  },
+  {
+    id: 'setting-out',
+    name: 'Construction Setting Out',
+    shortDesc: 'Transferring architectural blueprints directly to ground coordinates with millimetric precision.',
+    fullDesc: 'Accurate stakeout of building baselines, foundation piers, column grid centers, road alignments, and drainage conduits straight from structural engineering drawings to physical site pegs.',
+    useCase: 'High-rise foundations, bridge piers, road corridors, factory alignments, and retaining walls.',
+    iconName: 'Home',
+    display_order: 3,
+    is_active: true
+  },
+  {
+    id: 'gis-mapping',
+    name: 'GIS & Mapping',
+    shortDesc: 'Spatial database development, thematic map generation, and geo-analytical decision intelligence.',
+    fullDesc: 'Integration of geographic data, spatial asset layers, satellite rasters, and demographic info into enterprise Geographic Information Systems for local governments, utility providers, and investors.',
+    useCase: 'Municipal revenue mapping, utility asset management, logistics route planning, and land use zoning.',
+    iconName: 'Map',
+    display_order: 4,
+    is_active: true
+  },
+  {
+    id: 'hydrographic',
+    name: 'Hydrographic Survey',
+    shortDesc: 'Bathymetric depth sounding, watercourse profiling, and riverbed sediment contouring.',
+    fullDesc: 'Underwater topography and waterbed elevation mapping across the River Niger, Asa River, and related water reservoirs in Kwara State for maritime navigation, dredging, and dam maintenance.',
+    useCase: 'Bridge pier water clearance, river dredging volume calculation, dam siltation checks, and floodplains.',
+    iconName: 'Waves',
+    display_order: 5,
+    is_active: true
+  },
+  {
+    id: 'route-survey',
+    name: 'Route & Corridor Survey',
+    shortDesc: 'Linear alignment profiling for highways, high-voltage transmission, and municipal water mains.',
+    fullDesc: 'Longitudinal profile leveling, cross-section staking, and right-of-way easement survey for roads, pipelines, irrigation channels, and rail tracks across urban and rural Kwara corridors.',
+    useCase: 'Highway corridor design, pipeline right-of-way, overhead transmission corridors, and municipal drainage.',
+    iconName: 'Crosshair',
+    display_order: 6,
+    is_active: true
+  },
+  {
+    id: 'title-perfection',
+    name: 'Survey Plan for C of O',
+    shortDesc: 'Official survey plans drafted to strict SURCON & Kwara State Geographic Information Service (KW-GIS) standards.',
+    fullDesc: 'Statutory cadastral lodgement, pillar coordinate computation, and preparation of original cloth plans strictly required for Governor Consent, Certificate of Occupancy (C of O), and registered conveyance.',
+    useCase: 'Commercial bank mortgage collateral, deed of assignment registration, and statutory land registration.',
+    iconName: 'FileCheck',
+    display_order: 7,
+    is_active: true
+  },
+  {
+    id: 'dispute-resolution',
+    name: 'Boundary Dispute Resolution',
+    shortDesc: 'Authoritative boundary relocation, historical survey reconstitution, and expert courtroom witness.',
+    fullDesc: 'Independent retracement surveys, overlapping title investigation, beacon re-establishment, and sworn expert witness documentation for traditional community arbitration and judicial dispute settlement.',
+    useCase: 'Family boundary reconciliation, communal land boundary demarcation, and courtroom litigation.',
+    iconName: 'ShieldCheck',
+    display_order: 8,
+    is_active: true
+  }
+];
+
+export const INITIAL_VERIFICATION_PILLARS: import('./types').VerificationPillar[] = [
+  {
+    id: 'pillar-1',
+    title: 'Legal Court Admissibility',
+    description: 'Only survey plans prepared, signed, and sealed by SURCON-registered surveyors are recognized as legal evidence in Nigerian courts and Kwara State registries.',
+    iconName: 'ShieldCheck',
+    display_order: 1
+  },
+  {
+    id: 'pillar-2',
+    title: 'Authentic Surcon Seal & Beacons',
+    description: 'Every genuine boundary demarcation is monumented with traceable survey beacons bearing registered surveyor identification and strict geodetic coordinates.',
+    iconName: 'Stamp',
+    display_order: 2
+  },
+  {
+    id: 'pillar-3',
+    title: 'Zero Tolerance for Quackery',
+    description: 'Protect your hard-earned capital. Dealing with unregistered individuals invalidates land documentation and risks permanent title revocation by Kwara authorities.',
+    iconName: 'AlertTriangle',
+    display_order: 3
+  },
+  {
+    id: 'pillar-4',
+    title: 'KW-GIS & Ministry Approval',
+    description: 'Only accredited APPSN practicing surveyors have authorized clearance for survey plan lodgement with the Kwara State Geographic Information Service (KW-GIS).',
+    iconName: 'FileCheck',
+    display_order: 4
+  }
+];
+
+export const INITIAL_ABOUT_CONTENT: import('./types').AboutContent = {
+  headlineBadge: '40+ Years of Dedicated Service',
+  heroHeading: 'Association of Private Practicing Surveyors of Nigeria (APPSN)',
+  leadParagraph: 'APPSN Kwara State Branch is the premier professional body of licensed, SURCON-accredited private practicing surveyors in Kwara State. For over four decades, our members have delivered boundary precision, cadastral integrity, and trusted land administration across all 16 Local Government Areas.',
+  visionTitle: 'Our Vision',
+  visionText: 'To build an orderly, legally secure, and technology-driven geospatial environment in Kwara State where land boundaries are indisputable, real estate investments thrive, and private surveying remains a trusted bedrock of societal planning.',
+  missionTitle: 'Our Mission',
+  missionText: 'To unite registered private practicing surveyors, foster peer collaboration, eliminate quackery through stringent public awareness, and guarantee that every survey document originating from our members meets the highest statutory requirements.',
+  coreValuesTitle: 'Core Values',
+  coreValuesText: 'Accuracy: Millimeter precision in every measurement.\nIntegrity: Honest, dispute-free boundary demarcation.\nEthics: Full compliance with SURCON standards & statutory fees.',
+  heroPhoto: '/assets/images/appsn_about_surveyors_1790027112897.jpg',
+  yearsExperience: '40+ Years',
+  yearsSubtitle: 'Certified SURCON Practitioners',
+  secretariatAddress: 'Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara State, Nigeria',
+  secretariatPhone: '+234 803 502 5960',
+  secretariatEmail: 'appsnkwara0@gmail.com'
+};
+
+export const INITIAL_SITE_SETTINGS: import('./types').SiteSettings = {
+  logoUrl: '/logo.png',
+  faviconUrl: '/favicon.png',
+  siteTitle: 'APPSN Kwara State - Official Directory of Registered Surveyors',
+  tagline: 'TRUSTED / VERIFIED / PROFESSIONAL',
+  branchName: 'APPSN Kwara State Branch',
+  heroHeadline: 'Find a Registered Surveyor in Kwara',
+  heroSubtitle: 'Connect with verified and registered practising surveyors across Kwara State. Get professional support for your land, property and construction needs.',
+  phone: '+234 803 502 5960',
+  email: 'appsnkwara0@gmail.com',
+  address: 'Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara State, Nigeria'
+};

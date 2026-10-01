@@ -5,14 +5,28 @@ import { getPathForView } from '../lib/routes';
 interface FooterProps {
   setView: (view: string) => void;
   currentView: string;
+  logoUrl?: string;
+  branchName?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
 }
 
-export default function Footer({ setView, currentView }: FooterProps) {
+export default function Footer({ 
+  setView, 
+  currentView,
+  logoUrl = '/logo.png',
+  branchName = 'APPSN Kwara',
+  phone = '+234 803 502 5960',
+  email = 'appsnkwara0@gmail.com',
+  address = 'Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara State, Nigeria'
+}: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   const navLinks = [
     { id: 'home', label: 'Home' },
     { id: 'directory', label: 'Find a Surveyor' },
+    { id: 'executives', label: 'Executive Council' },
     { id: 'aims', label: 'Aims & Objectives' },
     { id: 'services', label: 'Services' },
     { id: 'about', label: 'About Us' },
@@ -58,7 +72,7 @@ export default function Footer({ setView, currentView }: FooterProps) {
             >
               <div className="w-13 h-13 rounded-full overflow-hidden border border-emerald-800/80 bg-white p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-300">
                 <img 
-                  src="/logo.png" 
+                  src={logoUrl || "/logo.png"} 
                   alt="APPSN Kwara Official Seal" 
                   className="object-contain w-full h-full"
                   referrerPolicy="no-referrer"
@@ -66,7 +80,7 @@ export default function Footer({ setView, currentView }: FooterProps) {
               </div>
               <div>
                 <span className="text-white font-serif font-bold text-xl tracking-tight block leading-tight">
-                  APPSN Kwara
+                  {branchName}
                 </span>
                 <span className="text-[9px] uppercase tracking-wider text-emerald-300 font-semibold block leading-tight mt-0.5">
                   ASSOCIATION OF PRIVATE PRACTICING SURVEYORS OF NIGERIA
@@ -116,13 +130,19 @@ export default function Footer({ setView, currentView }: FooterProps) {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span className="leading-relaxed text-slate-300">
-                  Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara.
+                  {address}
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <a href="tel:+2349137550602" className="font-mono text-slate-300 hover:text-emerald-300 transition-colors">
-                  +2349137550602
+                <a href={`tel:${phone.replace(/\s+/g, '')}`} className="font-mono text-slate-300 hover:text-emerald-300 transition-colors">
+                  {phone}
+                </a>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
+                <a href={`mailto:${email}`} className="text-slate-300 hover:text-emerald-300 transition-colors">
+                  {email}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
