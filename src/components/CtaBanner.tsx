@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Compass, ShieldCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface CtaBannerProps {
   onBrowseSurveyors: () => void;
@@ -66,12 +66,6 @@ export default function CtaBanner({ onBrowseSurveyors, onLearnServices }: CtaBan
               >
                 <span>Learn About Our Services</span>
               </button>
-            </div>
-
-            {/* Micro Trust footnote */}
-            <div className="pt-4 flex items-center justify-center gap-2 text-[11px] text-emerald-200/80 font-medium">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>All listed practitioners are verified with the Surveyors Council of Nigeria (SURCON)</span>
             </div>
 
           </div>

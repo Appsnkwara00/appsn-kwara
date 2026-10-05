@@ -9,6 +9,7 @@ import {
   INITIAL_ABOUT_CONTENT, INITIAL_SITE_SETTINGS
 } from '../data';
 import { resolveLgaFromLocation } from './lgaResolver';
+import { KWARA_OFFICE_LANDMARK_COORDS } from './locationCoordinates';
 
 const env = (import.meta as any).env || {};
 const SUPABASE_URL = env.VITE_SUPABASE_URL || "https://jldxqbjdsaneejvqtcra.supabase.co";
@@ -131,6 +132,17 @@ export function mapSupabaseRowToSurveyor(row: SupabaseSurveyorRow): Surveyor {
 
   // Strip embedded geo string from clean display address
   const cleanOfficeAddress = rawAddress.replace(/\s*\[geo:[^\]]+\]\s*/g, '').trim();
+
+  // If coordinates were not explicitly set in columns or embedded geo, resolve from office address
+  if (latitude === null || longitude === null) {
+    if (cleanOfficeAddress && cleanOfficeAddress.length > 2 && !/not\s*specified/i.test(cleanOfficeAddress)) {
+      const matched = KWARA_OFFICE_LANDMARK_COORDS.find(item => item.match.test(cleanOfficeAddress));
+      if (matched) {
+        latitude = matched.lat;
+        longitude = matched.lng;
+      }
+    }
+  }
   
   // Automatic LGA assignment derived strictly from office address/location
   let lga = resolveLgaFromLocation(cleanOfficeAddress);
