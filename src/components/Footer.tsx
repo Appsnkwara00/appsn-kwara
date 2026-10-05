@@ -70,7 +70,7 @@ export default function Footer({
               }}
               className="flex items-center gap-3 cursor-pointer group select-none"
             >
-              <div className="w-13 h-13 rounded-full overflow-hidden border border-emerald-800/80 bg-white p-0.5 shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-300">
+              <div className="w-13 h-13 shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                 <img 
                   src={logoUrl || "/logo.png"} 
                   alt="APPSN Kwara Official Seal" 

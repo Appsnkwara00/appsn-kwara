@@ -64,7 +64,7 @@ export default function Navbar({
             }}
             id="nav-logo-brand"
           >
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-full overflow-hidden border border-emerald-950/15 bg-white p-0.5 shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-300">
+            <div className="relative flex items-center justify-center w-12 h-12 shrink-0 group-hover:scale-105 transition-transform duration-300">
               <img 
                 src={logoUrl || "/logo.png"} 
                 alt="APPSN Kwara State Official Seal" 

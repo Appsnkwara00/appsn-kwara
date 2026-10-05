@@ -29,6 +29,8 @@ export interface Surveyor {
   date_of_birth?: string;
   qualification?: string;
   areasServed?: string[];
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface Executive {

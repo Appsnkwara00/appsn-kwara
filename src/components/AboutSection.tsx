@@ -33,7 +33,9 @@ export default function AboutSection({
   executives
 }: AboutSectionProps) {
   const content = aboutContent || INITIAL_ABOUT_CONTENT;
-  const photo = content.heroPhoto || defaultAboutSurveyorPhoto;
+  const photo = content.heroPhoto && !content.heroPhoto.startsWith('/assets/images/')
+    ? content.heroPhoto
+    : (defaultAboutSurveyorPhoto || '/about_surveyor.jpg');
 
   const displayExecs = executives && executives.length > 0
     ? [...executives].sort((a, b) => a.display_order - b.display_order).map(e => ({
@@ -59,6 +61,12 @@ export default function AboutSection({
                 <img
                   src={photo}
                   alt="APPSN Kwara professional surveyors conducting field survey"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== defaultAboutSurveyorPhoto) {
+                      target.src = defaultAboutSurveyorPhoto || '/about_surveyor.jpg';
+                    }
+                  }}
                   className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />

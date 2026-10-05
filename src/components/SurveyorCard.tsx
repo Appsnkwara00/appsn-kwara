@@ -98,11 +98,22 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
           </div>
 
           {/* LGA Location (derived from office address) */}
-          <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium pt-0.5">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className={`truncate ${surveyor.lga === 'LGA not specified' ? 'italic text-slate-400' : 'text-slate-700 font-medium'}`}>
-              {lgaDisplay}
-            </span>
+          <div className="flex items-center justify-between text-xs text-slate-600 font-medium pt-0.5">
+            <div className="flex items-center gap-1.5 truncate">
+              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className={`truncate ${surveyor.lga === 'LGA not specified' ? 'italic text-slate-400' : 'text-slate-700 font-medium'}`}>
+                {lgaDisplay}
+              </span>
+            </div>
+            {typeof surveyor.latitude === 'number' && typeof surveyor.longitude === 'number' && (
+              <span 
+                className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60 shrink-0 flex items-center gap-1"
+                title="Office mapped on OpenStreetMap"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Map
+              </span>
+            )}
           </div>
         </div>
 

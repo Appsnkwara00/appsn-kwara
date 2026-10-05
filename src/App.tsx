@@ -28,6 +28,7 @@ import {
 } from './data';
 import { 
   fetchSurveyors, 
+  saveSurveyorToSupabase,
   subscribeToSurveyorChanges, 
   fetchExecutives, 
   subscribeToExecutiveChanges,
@@ -403,7 +404,7 @@ export default function App() {
   }, [view]);
 
   // --- DATABASE / ADMIN ACTIONS ---
-  const handleAddSurveyor = (newS: Omit<Surveyor, 'id' | 'createdAt'>) => {
+  const handleAddSurveyor = async (newS: Omit<Surveyor, 'id' | 'createdAt'>) => {
     const freshSurveyor: Surveyor = {
       ...newS,
       id: `surv-${Date.now()}`,
@@ -411,11 +412,16 @@ export default function App() {
     };
     const updated = [freshSurveyor, ...surveyors];
     setSurveyors(updated);
+    await saveSurveyorToSupabase(freshSurveyor);
   };
 
-  const handleUpdateSurveyor = (updatedS: Surveyor) => {
+  const handleUpdateSurveyor = async (updatedS: Surveyor) => {
     const updated = surveyors.map(s => s.id === updatedS.id ? updatedS : s);
     setSurveyors(updated);
+    if (selectedSurveyor && selectedSurveyor.id === updatedS.id) {
+      setSelectedSurveyor(updatedS);
+    }
+    await saveSurveyorToSupabase(updatedS);
   };
 
   const handleDeleteSurveyor = (id: string) => {
@@ -709,6 +715,7 @@ export default function App() {
             {/* 3. APPSN KWARA AIMS & OBJECTIVES */}
             <AimsObjectives 
               aims={aims} 
+              onFindSurveyor={() => navigateTo('directory')}
             />
 
             {/* 4. WHY HIRE AN APPSN SURVEYOR / VERIFICATION GUIDE */}
@@ -738,13 +745,6 @@ export default function App() {
                 <p className="text-slate-600 text-xs sm:text-sm mt-1 max-w-xl">
                   Search, verify credentials, and directly contact SURCON-certified private practicing surveyors in Kwara State.
                 </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-900 text-xs font-mono font-bold shadow-2xs">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>60+ Certified Practitioners</span>
-                </span>
               </div>
             </div>
 

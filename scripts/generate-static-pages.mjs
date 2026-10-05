@@ -40,6 +40,14 @@ const PAGES = [
     canonical: 'https://appsnkwara.com/resources'
   },
   {
+    path: '/executives',
+    title: 'APPSN Kwara Executive Council | Association Leadership',
+    description: 'Meet the executive council responsible for representing and advancing the interests of private practicing surveyors across Kwara State.',
+    heading: 'APPSN Kwara State Executive Council',
+    content: 'The executive committee of the Association of Private Practicing Surveyors of Nigeria (APPSN) Kwara State Branch: Chairman, Vice Chairman, Secretary, and council members.',
+    canonical: 'https://appsnkwara.com/executives'
+  },
+  {
     path: '/contact',
     title: 'Contact Branch Secretariat | APPSN Kwara State',
     description: 'Connect directly with the APPSN Kwara State Secretariat along Ikoyi Avenue, Off New Yidi Rd, Ilorin, or dispatch an inquiry to appsnkwara@gmail.com.',

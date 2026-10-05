@@ -5,6 +5,7 @@ import {
   Building2, ArrowRight, ZoomIn, CheckCircle2
 } from 'lucide-react';
 import { buildWhatsAppLink } from '../lib/whatsapp';
+import SurveyorMap from './SurveyorMap';
 
 interface ProfileModalProps {
   surveyor: Surveyor | null;
@@ -170,6 +171,27 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
               )}
             </div>
 
+          </div>
+
+          {/* Location & OpenStreetMap Section */}
+          <div className="pt-6 border-t border-slate-100 space-y-3.5" id="profile-location-section">
+            <div>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
+                Office Location &amp; Headquarters
+              </span>
+              <h4 className="text-base font-bold text-slate-900 font-serif">
+                {surveyor.lga && surveyor.lga !== 'LGA not specified' ? `${surveyor.lga}, Kwara State` : 'Kwara State, Nigeria'}
+              </h4>
+            </div>
+
+            <SurveyorMap
+              latitude={surveyor.latitude}
+              longitude={surveyor.longitude}
+              surveyorName={surveyor.fullName}
+              officeAddress={surveyor.officeAddress}
+              lga={surveyor.lga}
+              companyName={surveyor.company_name}
+            />
           </div>
 
           {/* Direct Contact Channels Section (Clean, streamlined without direct message form) */}

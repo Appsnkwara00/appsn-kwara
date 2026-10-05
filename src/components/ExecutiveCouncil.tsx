@@ -43,11 +43,6 @@ export default function ExecutiveCouncil({ executives, onPreviewImage, onViewAll
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-14 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-[#0D3829] text-xs font-mono font-bold tracking-wider uppercase">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Branch Leadership</span>
-          </div>
-          
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-slate-900 tracking-tight">
             APPSN Kwara Executive Council
           </h2>

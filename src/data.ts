@@ -443,7 +443,7 @@ export const INITIAL_ABOUT_CONTENT: import('./types').AboutContent = {
   missionText: 'To unite registered private practicing surveyors, foster peer collaboration, eliminate quackery through stringent public awareness, and guarantee that every survey document originating from our members meets the highest statutory requirements.',
   coreValuesTitle: 'Core Values',
   coreValuesText: 'Accuracy: Millimeter precision in every measurement.\nIntegrity: Honest, dispute-free boundary demarcation.\nEthics: Full compliance with SURCON standards & statutory fees.',
-  heroPhoto: '/assets/images/appsn_about_surveyors_1790027112897.jpg',
+  heroPhoto: '/about_surveyor.jpg',
   yearsExperience: '40+ Years',
   yearsSubtitle: 'Certified SURCON Practitioners',
   secretariatAddress: 'Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara State, Nigeria',

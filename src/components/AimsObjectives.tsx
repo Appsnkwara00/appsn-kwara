@@ -8,6 +8,7 @@ import {
 
 interface AimsObjectivesProps {
   aims: AimObjective[];
+  onFindSurveyor?: () => void;
 }
 
 // Icon mapper for aim objectives
@@ -37,7 +38,7 @@ function getAimIcon(iconName: string) {
   }
 }
 
-export default function AimsObjectives({ aims }: AimsObjectivesProps) {
+export default function AimsObjectives({ aims, onFindSurveyor }: AimsObjectivesProps) {
   const sortedAims = [...aims].sort((a, b) => a.display_order - b.display_order);
 
   return (
@@ -103,12 +104,20 @@ export default function AimsObjectives({ aims }: AimsObjectivesProps) {
               Always verify your surveyor before commissioning boundary demarcations, topographical surveys, or layout subdivision charting.
             </p>
           </div>
-          <a
-            href="#directory"
-            className="shrink-0 bg-white hover:bg-slate-100 text-[#0D3829] font-bold text-xs uppercase font-mono tracking-wider py-3.5 px-6 rounded-xl transition-all shadow-md active:scale-98"
+          <button
+            type="button"
+            onClick={() => {
+              if (onFindSurveyor) {
+                onFindSurveyor();
+              }
+            }}
+            className="shrink-0 bg-white hover:bg-emerald-50 text-[#0D3829] font-bold text-xs uppercase font-mono tracking-wider py-3.5 px-6 rounded-xl transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2 group"
+            id="btn-find-registered-surveyor"
+            aria-label="Find Registered Surveyor"
           >
-            Find Registered Surveyor
-          </a>
+            <span>Find Registered Surveyor</span>
+            <ChevronRight className="w-4 h-4 text-[#0D3829] group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
 
       </div>

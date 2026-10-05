@@ -13,6 +13,7 @@ import BrandingSettingsTab from './admin/BrandingSettingsTab';
 import ServicesTab from './admin/ServicesTab';
 import ValidationGuideTab from './admin/ValidationGuideTab';
 import AboutContentTab from './admin/AboutContentTab';
+import AdminLocationPickerMap from './map/AdminLocationPickerMap';
 import { 
   Users, UserCheck, ShieldAlert, FileText, Plus, Search, 
   Trash2, Edit, Check, CheckCircle2, AlertCircle, Eye, 
@@ -112,6 +113,8 @@ export default function AdminPortal({
   const [formEmail, setFormEmail] = useState('');
   const [formAddress, setFormAddress] = useState('');
   const [formLga, setFormLga] = useState(KWARA_LGAS[0]);
+  const [formLat, setFormLat] = useState<number | null>(null);
+  const [formLng, setFormLng] = useState<number | null>(null);
   const [formSpec, setFormSpec] = useState(SPECIALIZATIONS[0]);
   const [formAbout, setFormAbout] = useState('');
   const [formIsActive, setFormIsActive] = useState(true);
@@ -208,6 +211,8 @@ export default function AdminPortal({
     setFormEmail('');
     setFormAddress('');
     setFormLga(KWARA_LGAS[0]);
+    setFormLat(null);
+    setFormLng(null);
     setFormSpec(SPECIALIZATIONS[0]);
     setFormAbout('');
     setFormIsActive(true);
@@ -225,6 +230,8 @@ export default function AdminPortal({
     setFormEmail(surveyor.email);
     setFormAddress(surveyor.officeAddress);
     setFormLga(surveyor.lga === 'LGA not specified' ? KWARA_LGAS[0] : surveyor.lga);
+    setFormLat(typeof surveyor.latitude === 'number' ? surveyor.latitude : null);
+    setFormLng(typeof surveyor.longitude === 'number' ? surveyor.longitude : null);
     setFormSpec(surveyor.specialization);
     setFormAbout(surveyor.aboutMe || '');
     setFormIsActive(surveyor.isActive);
@@ -250,7 +257,9 @@ export default function AdminPortal({
         specialization: formSpec,
         aboutMe: formAbout,
         isActive: formIsActive,
-        profilePhoto: formPhoto
+        profilePhoto: formPhoto,
+        latitude: formLat,
+        longitude: formLng
       });
     } else {
       onAddSurveyor({
@@ -263,7 +272,9 @@ export default function AdminPortal({
         specialization: formSpec,
         aboutMe: formAbout,
         isActive: formIsActive,
-        profilePhoto: formPhoto
+        profilePhoto: formPhoto,
+        latitude: formLat,
+        longitude: formLng
       });
     }
     setIsSurveyorFormOpen(false);
@@ -1312,6 +1323,18 @@ export default function AdminPortal({
                   </p>
                 )}
               </div>
+
+              {/* Interactive OpenStreetMap Location Section */}
+              <AdminLocationPickerMap
+                address={formAddress}
+                lga={formLga}
+                latitude={formLat}
+                longitude={formLng}
+                onChangeCoordinates={(lat, lng) => {
+                  setFormLat(lat);
+                  setFormLng(lng);
+                }}
+              />
 
               {/* LGA Field (Auto populated, with manual override available) & Specialization */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

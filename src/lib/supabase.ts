@@ -42,6 +42,8 @@ export interface SupabaseSurveyorRow {
   is_active?: boolean | null;
   created_at?: string | null;
   updated_at?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   [key: string]: any;
 }
 
@@ -94,10 +96,44 @@ export function mapSupabaseRowToSurveyor(row: SupabaseSurveyorRow): Surveyor {
     registrationNumber = 'SURCON CERTIFIED';
   }
 
-  const officeAddress = row.company_address || row.officeAddress || '';
+  const rawAddress = row.company_address || row.officeAddress || '';
+
+  // Extract coordinates from row.latitude/row.longitude OR embedded [geo:lat,lng] in address OR cache
+  let latitude: number | null = null;
+  let longitude: number | null = null;
+
+  if (typeof row.latitude === 'number' && typeof row.longitude === 'number' && !isNaN(row.latitude) && !isNaN(row.longitude)) {
+    latitude = row.latitude;
+    longitude = row.longitude;
+  } else {
+    // Check embedded [geo:lat,lng] in raw address
+    const geoMatch = rawAddress.match(/\[geo:([0-9.-]+),([0-9.-]+)\]/);
+    if (geoMatch) {
+      const parsedLat = parseFloat(geoMatch[1]);
+      const parsedLng = parseFloat(geoMatch[2]);
+      if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+        latitude = parsedLat;
+        longitude = parsedLng;
+      }
+    } else {
+      // Check local cache
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const cache = JSON.parse(localStorage.getItem('appsn_surveyor_coords') || '{}');
+          if (cache[row.id] && typeof cache[row.id].latitude === 'number' && typeof cache[row.id].longitude === 'number') {
+            latitude = cache[row.id].latitude;
+            longitude = cache[row.id].longitude;
+          }
+        }
+      } catch (e) {}
+    }
+  }
+
+  // Strip embedded geo string from clean display address
+  const cleanOfficeAddress = rawAddress.replace(/\s*\[geo:[^\]]+\]\s*/g, '').trim();
   
   // Automatic LGA assignment derived strictly from office address/location
-  let lga = resolveLgaFromLocation(officeAddress);
+  let lga = resolveLgaFromLocation(cleanOfficeAddress);
   if (lga === "LGA not specified" && row.residency) {
     lga = resolveLgaFromLocation(row.residency);
   }
@@ -130,13 +166,15 @@ export function mapSupabaseRowToSurveyor(row: SupabaseSurveyorRow): Surveyor {
     registrationNumber,
     phoneNumber: row.phone_number || row.phoneNumber || '',
     email: row.email || '',
-    officeAddress: officeAddress || 'Kwara State, Nigeria',
+    officeAddress: cleanOfficeAddress || 'Kwara State, Nigeria',
     lga,
     specialization,
     profilePhoto,
     isActive: row.is_active ?? true,
     createdAt: row.created_at || new Date().toISOString(),
     aboutMe,
+    latitude,
+    longitude,
 
     // Supabase Specific
     title: row.title || undefined,
@@ -147,12 +185,69 @@ export function mapSupabaseRowToSurveyor(row: SupabaseSurveyorRow): Surveyor {
     surcon_prefix: row.surcon_prefix || undefined,
     whatsapp_number: row.whatsapp_number || row.phone_number || undefined,
     company_name: row.company_name || undefined,
-    company_address: row.company_address || undefined,
+    company_address: cleanOfficeAddress || undefined,
     residency: row.residency || undefined,
     profile_image_url: row.profile_image_url || undefined,
     date_of_birth: row.date_of_birth || undefined,
     qualification: row.qualification || 'SURCON Licensed Private Practicing Surveyor',
   };
+}
+
+// Persist surveyor details and coordinates to Supabase
+export async function saveSurveyorToSupabase(surveyor: Surveyor): Promise<void> {
+  const cleanAddr = (surveyor.officeAddress || '').replace(/\s*\[geo:[^\]]+\]\s*/g, '').trim();
+  const addressWithGeo = (typeof surveyor.latitude === 'number' && typeof surveyor.longitude === 'number' && !isNaN(surveyor.latitude) && !isNaN(surveyor.longitude))
+    ? `${cleanAddr} [geo:${Number(surveyor.latitude).toFixed(6)},${Number(surveyor.longitude).toFixed(6)}]`
+    : cleanAddr;
+
+  // 1. Always update local storage cache immediately
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const cache = JSON.parse(localStorage.getItem('appsn_surveyor_coords') || '{}');
+      if (typeof surveyor.latitude === 'number' && typeof surveyor.longitude === 'number') {
+        cache[surveyor.id] = { latitude: surveyor.latitude, longitude: surveyor.longitude };
+      } else {
+        delete cache[surveyor.id];
+      }
+      localStorage.setItem('appsn_surveyor_coords', JSON.stringify(cache));
+    }
+  } catch (e) {}
+
+  // 2. Persist to Supabase
+  try {
+    const payloadWithCols: any = {
+      company_address: addressWithGeo,
+      latitude: surveyor.latitude ?? null,
+      longitude: surveyor.longitude ?? null,
+      updated_at: new Date().toISOString()
+    };
+
+    if (surveyor.fullName) payloadWithCols.full_name = surveyor.fullName;
+    if (surveyor.email) payloadWithCols.email = surveyor.email;
+    if (surveyor.phoneNumber) payloadWithCols.phone_number = surveyor.phoneNumber;
+
+    const { error } = await supabase
+      .from('surveyors')
+      .update(payloadWithCols)
+      .eq('id', surveyor.id);
+
+    if (error) {
+      // If error was missing latitude/longitude columns, update company_address with embedded geo
+      if (error.message && (error.message.includes('latitude') || error.message.includes('longitude') || error.code === '42703')) {
+        await supabase
+          .from('surveyors')
+          .update({
+            company_address: addressWithGeo,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', surveyor.id);
+      } else {
+        console.warn('Supabase surveyor update notice:', error.message);
+      }
+    }
+  } catch (err) {
+    console.warn('Error saving surveyor to Supabase:', err);
+  }
 }
 
 // Fetch all surveyors from Supabase
@@ -474,7 +569,15 @@ export async function fetchSiteSettings(): Promise<SiteSettings> {
   // Local storage fallback
   try {
     const cached = typeof window !== 'undefined' && window.localStorage ? localStorage.getItem('appsn_site_settings') : null;
-    if (cached) return JSON.parse(cached);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return {
+        ...INITIAL_SITE_SETTINGS,
+        ...parsed,
+        logoUrl: parsed.logoUrl?.startsWith('data:') ? parsed.logoUrl : '/logo.png',
+        faviconUrl: parsed.faviconUrl?.startsWith('data:') ? parsed.faviconUrl : '/favicon.png'
+      };
+    }
   } catch (e) {}
 
   return INITIAL_SITE_SETTINGS;
@@ -723,7 +826,9 @@ export async function fetchAboutContent(): Promise<AboutContent> {
         missionText: a.mission_text || a.missionText || INITIAL_ABOUT_CONTENT.missionText,
         coreValuesTitle: a.core_values_title || a.coreValuesTitle || INITIAL_ABOUT_CONTENT.coreValuesTitle,
         coreValuesText: a.core_values_text || a.coreValuesText || INITIAL_ABOUT_CONTENT.coreValuesText,
-        heroPhoto: a.hero_photo || a.heroPhoto || INITIAL_ABOUT_CONTENT.heroPhoto,
+        heroPhoto: (a.hero_photo || a.heroPhoto) && !(a.hero_photo || a.heroPhoto).startsWith('/assets/images/')
+          ? (a.hero_photo || a.heroPhoto)
+          : '/about_surveyor.jpg',
         yearsExperience: a.years_experience || a.yearsExperience || INITIAL_ABOUT_CONTENT.yearsExperience,
         yearsSubtitle: a.years_subtitle || a.yearsSubtitle || INITIAL_ABOUT_CONTENT.yearsSubtitle,
         secretariatAddress: a.secretariat_address || a.secretariatAddress || INITIAL_ABOUT_CONTENT.secretariatAddress,

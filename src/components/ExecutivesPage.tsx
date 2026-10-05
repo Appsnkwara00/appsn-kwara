@@ -55,11 +55,6 @@ export default function ExecutivesPage({
         {/* Clean Page Header */}
         <div className="border-b border-slate-200/80 pb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div className="space-y-3 max-w-3xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-[#0D3829] text-xs font-mono font-bold tracking-wider uppercase">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Leadership &amp; Governance</span>
-            </div>
-
             <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-serif font-bold text-[#0B251D] tracking-tight leading-tight">
               APPSN Executive Council
             </h1>
@@ -67,13 +62,6 @@ export default function ExecutivesPage({
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
               Meet the executive council responsible for representing and advancing the interests of private practicing surveyors across Kwara State.
             </p>
-          </div>
-
-          <div className="shrink-0">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-2xs text-[#0D3829] text-xs font-mono font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{activeExecutives.length} Active Council {activeExecutives.length === 1 ? 'Officer' : 'Officers'}</span>
-            </span>
           </div>
         </div>
 
