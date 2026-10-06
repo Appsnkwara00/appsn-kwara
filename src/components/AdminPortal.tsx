@@ -101,6 +101,7 @@ export default function AdminPortal({
   const [adminSearch, setAdminSearch] = useState('');
   const [adminLgaFilter, setAdminLgaFilter] = useState('');
   const [adminSpecFilter, setAdminSpecFilter] = useState('');
+  const [adminLocationFilter, setAdminLocationFilter] = useState('');
 
   // Surveyor Form states (For Add / Edit)
   const [isSurveyorFormOpen, setIsSurveyorFormOpen] = useState(false);
@@ -419,8 +420,12 @@ export default function AdminPortal({
 
     const matchLga = !adminLgaFilter || s.lga === adminLgaFilter;
     const matchSpec = !adminSpecFilter || s.specialization === adminSpecFilter;
+    const matchLoc = !adminLocationFilter || 
+      (adminLocationFilter === 'pinned' 
+        ? (typeof s.latitude === 'number' && typeof s.longitude === 'number' && !isNaN(s.latitude) && !isNaN(s.longitude))
+        : (typeof s.latitude !== 'number' || typeof s.longitude !== 'number' || isNaN(s.latitude) || isNaN(s.longitude)));
 
-    return matchQ && matchLga && matchSpec;
+    return matchQ && matchLga && matchSpec && matchLoc;
   });
 
   const unreadInquiries = messages.filter(m => m.status === 'unread').length;
@@ -753,7 +758,7 @@ export default function AdminPortal({
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
                   <div className="relative">
                     <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
@@ -785,6 +790,16 @@ export default function AdminPortal({
                     {SPECIALIZATIONS.map(spec => (
                       <option key={spec} value={spec}>{spec}</option>
                     ))}
+                  </select>
+
+                  <select
+                    value={adminLocationFilter}
+                    onChange={(e) => setAdminLocationFilter(e.target.value)}
+                    className="py-2 px-3 bg-[#FAF9F5] border border-slate-200 rounded-xl text-xs text-slate-700"
+                  >
+                    <option value="">All Map Statuses</option>
+                    <option value="pinned">📍 Pinned on Map</option>
+                    <option value="unpinned">⚠️ Missing Map Pin</option>
                   </select>
                 </div>
               </div>
@@ -836,12 +851,25 @@ export default function AdminPortal({
                             <td className="px-5 py-3.5 font-mono font-semibold text-slate-700">
                               {s.registrationNumber}
                             </td>
-                            <td className="px-5 py-3.5 space-y-0.5">
+                            <td className="px-5 py-3.5 space-y-1">
                               <div className="font-bold text-emerald-900 font-mono text-[11px]">
                                 {s.lga === 'LGA not specified' ? 'LGA not specified' : `${s.lga} LGA`}
                               </div>
                               <div className="text-slate-500 text-[11px] truncate max-w-[200px]" title={s.officeAddress}>
                                 {s.officeAddress}
+                              </div>
+                              <div className="pt-0.5">
+                                {typeof s.latitude === 'number' && typeof s.longitude === 'number' ? (
+                                  <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title={`Lat: ${s.latitude}, Lng: ${s.longitude}`}>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    Pinned ({s.latitude.toFixed(3)}°, {s.longitude.toFixed(3)}°)
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                    No Pin (Click Edit)
+                                  </span>
+                                )}
                               </div>
                             </td>
                             <td className="px-5 py-3.5 font-mono text-[11px] text-slate-600">

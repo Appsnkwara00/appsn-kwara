@@ -1,11 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Navigation, MapPin } from 'lucide-react';
 
 export interface SurveyorMapProps {
+  // Required props as requested
+  lat?: number | null;
+  lng?: number | null;
+  popup?: React.ReactNode | string;
+
+  // Backward-compatible props for existing consumers
   latitude?: number | null;
   longitude?: number | null;
+  popupMessage?: React.ReactNode | string;
   surveyorName?: string;
   officeAddress?: string;
   lga?: string;
@@ -16,7 +24,7 @@ export interface SurveyorMapProps {
   showDirectionsButton?: boolean;
 }
 
-// Custom APPSN Kwara Map Marker styled with forest green and gold accent
+// Custom APPSN Leaflet Pin Icon (avoids missing Vite marker icon assets)
 function createSurveyorPin() {
   return L.divIcon({
     className: 'surveyor-map-marker-pin',
@@ -42,9 +50,27 @@ function createSurveyorPin() {
   });
 }
 
+// Controller component to invalidate size and smoothly pan on coordinate changes
+function MapViewController({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [center, zoom, map]);
+
+  return null;
+}
+
 export function SurveyorMap({
+  lat,
+  lng,
+  popup,
   latitude,
   longitude,
+  popupMessage,
   surveyorName = 'Registered Surveyor',
   officeAddress,
   lga,
@@ -54,128 +80,113 @@ export function SurveyorMap({
   zoom = 16,
   showDirectionsButton = true,
 }: SurveyorMapProps) {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
+  // Resolve coordinates from either `lat`/`lng` or `latitude`/`longitude`
+  const resolvedLat = lat ?? latitude;
+  const resolvedLng = lng ?? longitude;
+  const resolvedPopup = popup ?? popupMessage;
 
-  // Validate coordinates strictly before map initialization
+  // Ensure the map ONLY renders if the provided coordinates are valid numbers
   const isValidCoordinates =
-    typeof latitude === 'number' &&
-    typeof longitude === 'number' &&
-    !isNaN(latitude) &&
-    !isNaN(longitude) &&
-    latitude >= -90 &&
-    latitude <= 90 &&
-    longitude >= -180 &&
-    longitude <= 180;
+    typeof resolvedLat === 'number' &&
+    typeof resolvedLng === 'number' &&
+    !isNaN(resolvedLat) &&
+    !isNaN(resolvedLng) &&
+    resolvedLat >= -90 &&
+    resolvedLat <= 90 &&
+    resolvedLng >= -180 &&
+    resolvedLng <= 180 &&
+    !(resolvedLat === 0 && resolvedLng === 0);
 
-  const cleanAddress = (officeAddress || '').replace(/\s*\[geo:[^\]]+\]\s*/g, '').trim();
-
-  useEffect(() => {
-    // Ensure the map ONLY initializes when valid latitude and longitude exist
-    if (!isValidCoordinates || !mapContainerRef.current) {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-      return;
-    }
-
-    const lat = latitude as number;
-    const lng = longitude as number;
-
-    // Clean up any existing map instance on container re-render
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove();
-      mapInstanceRef.current = null;
-    }
-
-    // Initialize Leaflet map centered at surveyor coordinates
-    const map = L.map(mapContainerRef.current, {
-      center: [lat, lng],
-      zoom,
-      zoomControl: true,
-      scrollWheelZoom: false,
-    });
-
-    // OpenStreetMap tile layer (https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png)
-    // with required attribution '© OpenStreetMap contributors'
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>',
-    }).addTo(map);
-
-    // Place marker showing surveyor location
-    const marker = L.marker([lat, lng], {
-      icon: createSurveyorPin(),
-      title: `${surveyorName} - Office Location`,
-    }).addTo(map);
-
-    // Bind descriptive popup
-    const popupContent = `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; line-height: 1.4; color: #1e293b; max-width: 220px; padding: 2px;">
-        <div style="font-weight: 700; color: #0D3829; font-size: 13px; margin-bottom: 2px;">${surveyorName}</div>
-        ${companyName ? `<div style="font-size: 11px; color: #475569; margin-bottom: 4px;">${companyName}</div>` : ''}
-        ${cleanAddress ? `<div style="color: #334155; font-size: 11px; margin-bottom: 4px;">${cleanAddress}</div>` : ''}
-        ${lga ? `<span style="display: inline-block; background: #EBF4F0; color: #0D3829; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">${lga} LGA</span>` : ''}
-      </div>
-    `;
-    marker.bindPopup(popupContent);
-
-    mapInstanceRef.current = map;
-
-    // Handle container resize when embedded in tabs or modals
-    const resizeTimer = setTimeout(() => {
-      map.invalidateSize();
-    }, 200);
-
-    return () => {
-      clearTimeout(resizeTimer);
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [isValidCoordinates, latitude, longitude, zoom, surveyorName, cleanAddress, lga, companyName]);
-
-  // Gracefully handle surveyors who do not have coordinates
-  if (!isValidCoordinates) {
-    return (
-      <div className={`bg-[#FAF9F5] rounded-2xl p-4 border border-slate-200/80 flex items-start gap-3 ${className}`}>
-        <MapPin className="w-5 h-5 text-emerald-800 shrink-0 mt-0.5" />
-        <div>
-          <span className="text-xs font-bold text-slate-800 block">
-            {cleanAddress || 'Office Address in Kwara State'}
-          </span>
-          <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
-            {lga && lga !== 'LGA not specified' ? `${lga} LGA, Kwara State` : 'Kwara State, Nigeria'}
-          </span>
+  // If coordinates are invalid, do NOT render the map
+  if (!isValidCoordinates || resolvedLat == null || resolvedLng == null) {
+    const cleanAddress = (officeAddress || '').replace(/\s*\[geo:[^\]]+\]\s*/g, '').trim();
+    if (cleanAddress || lga) {
+      return (
+        <div className={`bg-[#FAF9F5] rounded-2xl p-4 border border-slate-200/80 flex items-start gap-3 ${className}`}>
+          <MapPin className="w-5 h-5 text-emerald-800 shrink-0 mt-0.5" />
+          <div>
+            <span className="text-xs font-bold text-slate-800 block">
+              {cleanAddress || 'Office Address in Kwara State'}
+            </span>
+            <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
+              {lga && lga !== 'LGA not specified' ? `${lga} LGA, Kwara State` : 'Kwara State, Nigeria'}
+            </span>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+    return null;
   }
 
-  // Get Directions handler using coordinates
-  const handleGetDirections = () => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
+  const center: [number, number] = [resolvedLat, resolvedLng];
   const containerHeight = typeof height === 'number' ? `${height}px` : height;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${resolvedLat},${resolvedLng}`;
+  const osmUrl = `https://www.openstreetmap.org/?mlat=${resolvedLat}&mlon=${resolvedLng}#map=17/${resolvedLat}/${resolvedLng}`;
+  const cleanOfficeAddress = (officeAddress || '').replace(/\s*\[geo:[^\]]+\]\s*/g, '').trim();
 
   return (
     <div className={`space-y-3 ${className}`} id="surveyor-osm-map-component">
       {/* Map Tile Container */}
       <div className="relative rounded-2xl overflow-hidden border border-slate-200/90 shadow-inner bg-[#FAF9F5]">
-        <div
-          ref={mapContainerRef}
-          className="w-full z-0"
-          style={{ height: containerHeight, minHeight: '220px' }}
-        />
+        <div style={{ height: containerHeight, minHeight: '220px', width: '100%' }}>
+          <MapContainer
+            center={center}
+            zoom={zoom}
+            scrollWheelZoom={false}
+            style={{ height: '100%', width: '100%' }}
+          >
+            {/* OpenStreetMap Tile Layer with Required Attribution */}
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+              maxZoom={19}
+            />
 
-        {/* Top-Right Precise Coordinates Tag */}
+            <MapViewController center={center} zoom={zoom} />
+
+            <Marker position={center} icon={createSurveyorPin()} title={`${surveyorName} - Office Location`}>
+              {(resolvedPopup || surveyorName) && (
+                <Popup>
+                  {resolvedPopup ? (
+                    typeof resolvedPopup === 'string' ? (
+                      <div className="text-xs text-slate-800 font-sans max-w-[220px]">
+                        {resolvedPopup}
+                      </div>
+                    ) : (
+                      resolvedPopup
+                    )
+                  ) : (
+                    <div style={{ fontFamily: 'system-ui, sans-serif', fontSize: '12px', lineHeight: '1.4', color: '#1e293b', maxWidth: '220px', padding: '2px' }}>
+                      <div style={{ fontWeight: 700, color: '#0D3829', fontSize: '13px', marginBottom: '2px' }}>{surveyorName}</div>
+                      {companyName && <div style={{ fontSize: '11px', color: '#475569', marginBottom: '4px' }}>{companyName}</div>}
+                      {cleanOfficeAddress && <div style={{ color: '#334155', fontSize: '11px', marginBottom: '4px' }}>{cleanOfficeAddress}</div>}
+                      {lga && lga !== 'LGA not specified' && (
+                        <span style={{ display: 'inline-block', background: '#EBF4F0', color: '#0D3829', fontSize: '10px', fontWeight: 600, padding: '1px 6px', borderRadius: '4px', marginBottom: '6px' }}>
+                          {lga} LGA
+                        </span>
+                      )}
+                      <div>
+                        <a
+                          href={directionsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#0D3829', color: '#ffffff', fontSize: '10px', fontWeight: 600, padding: '4px 9px', borderRadius: '6px', textDecoration: 'none' }}
+                        >
+                          Get Directions &rarr;
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </Popup>
+              )}
+            </Marker>
+          </MapContainer>
+        </div>
+
+        {/* Top-Right Coordinates Tag */}
         <div className="absolute top-2.5 right-2.5 z-[400] bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs pointer-events-none hidden sm:block">
           <span className="font-mono text-[10px] text-slate-600 font-semibold">
-            {(latitude as number).toFixed(5)}° N, {(longitude as number).toFixed(5)}° E
+            {resolvedLat.toFixed(5)}° N, {resolvedLng.toFixed(5)}° E
           </span>
         </div>
       </div>
@@ -185,19 +196,32 @@ export function SurveyorMap({
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
           <div className="text-xs text-slate-500 flex items-center gap-1.5 truncate">
             <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-            <span className="font-medium truncate">{cleanAddress || `${lga || 'Kwara'} State`}</span>
+            <span className="font-medium truncate">{cleanOfficeAddress || `${lga || 'Kwara'} State`}</span>
           </div>
 
-          <button
-            type="button"
-            onClick={handleGetDirections}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0D3829] hover:bg-[#08281D] active:scale-98 text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer group shrink-0"
-            id="btn-surveyor-map-directions"
-            title="Open directions in navigation application"
-          >
-            <Navigation className="w-3.5 h-3.5 text-emerald-300 group-hover:scale-110 transition-transform" />
-            <span>Get Directions</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <a
+              href={directionsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0D3829] hover:bg-[#08281D] active:scale-98 text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer group shrink-0 no-underline"
+              id="btn-surveyor-map-directions"
+              title="Open directions to office from your current location"
+            >
+              <Navigation className="w-3.5 h-3.5 text-emerald-300 group-hover:scale-110 transition-transform" />
+              <span>Get Directions</span>
+            </a>
+
+            <a
+              href={osmUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-3 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-mono font-medium transition-colors cursor-pointer no-underline"
+              title="View on OpenStreetMap"
+            >
+              OSM
+            </a>
+          </div>
         </div>
       )}
     </div>

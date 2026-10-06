@@ -5,6 +5,7 @@ import {
   Building2, ArrowRight, ZoomIn, CheckCircle2
 } from 'lucide-react';
 import { buildWhatsAppLink } from '../lib/whatsapp';
+import { getCoordinatesForSurveyor } from '../lib/locationCoordinates';
 import SurveyorMap from './SurveyorMap';
 
 interface ProfileModalProps {
@@ -17,6 +18,10 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
   const [imgError, setImgError] = useState(false);
 
   if (!surveyor) return null;
+
+  const coords = getCoordinatesForSurveyor(surveyor);
+  const activeLat = coords ? coords.latitude : (typeof surveyor.latitude === 'number' ? surveyor.latitude : null);
+  const activeLng = coords ? coords.longitude : (typeof surveyor.longitude === 'number' ? surveyor.longitude : null);
 
   const initialLetter = surveyor.fullName
     ? surveyor.fullName.replace(/^(Surv\.|Engr\.|Mrs\.|Mr\.|Dr\.|Alhaji)\s*/i, '').trim().charAt(0) || 'S'
@@ -185,8 +190,10 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
             </div>
 
             <SurveyorMap
-              latitude={surveyor.latitude}
-              longitude={surveyor.longitude}
+              lat={activeLat}
+              lng={activeLng}
+              latitude={activeLat}
+              longitude={activeLng}
               surveyorName={surveyor.fullName}
               officeAddress={surveyor.officeAddress}
               lga={surveyor.lga}

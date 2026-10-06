@@ -83,8 +83,13 @@ export default function SurveyorLocationMap({
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; line-height: 1.4; color: #1e293b; max-width: 220px; padding: 2px;">
         <div style="font-weight: 700; color: #0D3829; font-size: 13px; margin-bottom: 2px;">${surveyorName}</div>
         ${companyName ? `<div style="font-size: 11px; color: #475569; margin-bottom: 4px;">${companyName}</div>` : ''}
-        <div style="color: #334155; font-size: 11px; margin-bottom: 4px;">${cleanAddress}</div>
-        ${lga ? `<span style="display: inline-block; background: #EBF4F0; color: #0D3829; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">${lga} LGA</span>` : ''}
+        ${cleanAddress ? `<div style="color: #334155; font-size: 11px; margin-bottom: 4px;">${cleanAddress}</div>` : ''}
+        ${lga ? `<span style="display: inline-block; background: #EBF4F0; color: #0D3829; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; margin-bottom: 6px;">${lga} LGA</span>` : ''}
+        <div>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:4px; background:#0D3829; color:#ffffff; font-size:10px; font-weight:600; padding:4px 9px; border-radius:6px; text-decoration:none;">
+            Get Directions &rarr;
+          </a>
+        </div>
       </div>
     `;
     marker.bindPopup(popupContent);
@@ -105,12 +110,10 @@ export default function SurveyorLocationMap({
     };
   }, [latitude, longitude, surveyorName, cleanAddress, lga, companyName]);
 
-  // Open directions in universal navigation URL (Google Maps / Apple Maps / default map app)
-  const handleGetDirections = () => {
-    // Universal maps directions URL using precise coordinates
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  // Turn-by-turn navigation URL from user's current location to office coordinates
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+  // OpenStreetMap location URL
+  const osmUrl = `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=17/${latitude}/${longitude}`;
 
   return (
     <div className="space-y-3" id="surveyor-location-map-section">
@@ -130,23 +133,36 @@ export default function SurveyorLocationMap({
         </div>
       </div>
 
-      {/* Action: Get Directions Button */}
+      {/* Action: Get Directions & OpenStreetMap Links */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
         <div className="text-xs text-slate-500 flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
           <span className="font-medium truncate">{cleanAddress}</span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleGetDirections}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0D3829] hover:bg-[#08281D] active:scale-98 text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer group shrink-0"
-          id="btn-get-directions"
-          title="Open directions to surveyor's office in your navigation app"
-        >
-          <Navigation className="w-3.5 h-3.5 text-emerald-300 group-hover:scale-110 transition-transform" />
-          <span>Get Directions</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={directionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0D3829] hover:bg-[#08281D] active:scale-98 text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer group shrink-0 no-underline"
+            id="btn-get-directions"
+            title="Open turn-by-turn navigation from your current location"
+          >
+            <Navigation className="w-3.5 h-3.5 text-emerald-300 group-hover:scale-110 transition-transform" />
+            <span>Get Directions</span>
+          </a>
+
+          <a
+            href={osmUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center px-3 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-mono font-medium transition-colors cursor-pointer no-underline"
+            title="View office location on OpenStreetMap"
+          >
+            OSM
+          </a>
+        </div>
       </div>
     </div>
   );

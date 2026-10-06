@@ -94,7 +94,12 @@ export default function CardSurveyorMap({
         <strong style="color: #0D3829; font-size: 12px; display: block; margin-bottom: 2px;">${surveyorName}</strong>
         ${companyName ? `<div style="font-size: 10px; color: #475569; margin-bottom: 3px;">${companyName}</div>` : ''}
         ${cleanAddress ? `<div style="color: #334155; font-size: 10px; margin-bottom: 3px;">${cleanAddress}</div>` : ''}
-        ${lga && lga !== 'LGA not specified' ? `<span style="background: #EBF4F0; color: #0D3829; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;">${lga} LGA</span>` : ''}
+        ${lga && lga !== 'LGA not specified' ? `<span style="background: #EBF4F0; color: #0D3829; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; display:inline-block; margin-bottom:4px;">${lga} LGA</span>` : ''}
+        <div>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}" target="_blank" rel="noopener noreferrer" style="display:inline-block; background:#0D3829; color:#ffffff; font-size:9px; font-weight:700; padding:3px 7px; border-radius:4px; text-decoration:none;">
+            Get Directions &rarr;
+          </a>
+        </div>
       </div>
     `;
     marker.bindPopup(popupHtml);
@@ -115,11 +120,8 @@ export default function CardSurveyorMap({
     };
   }, [latitude, longitude, surveyorName, cleanAddress, lga, companyName, interactive]);
 
-  const handleDirections = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  // Turn-by-turn navigation URL from user's current location to office coordinates
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
 
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden bg-[#FAF9F5] border border-slate-200">
@@ -130,15 +132,17 @@ export default function CardSurveyorMap({
       />
 
       {/* Top Directions Button */}
-      <button
-        type="button"
-        onClick={handleDirections}
-        className="absolute top-2 right-2 z-[400] bg-white/95 hover:bg-white text-[#0D3829] shadow-md border border-slate-200 px-2 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition-all hover:scale-105 cursor-pointer"
-        title="Get directions to office"
+      <a
+        href={directionsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="absolute top-2 right-2 z-[400] bg-white/95 hover:bg-white text-[#0D3829] shadow-md border border-slate-200 px-2 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition-all hover:scale-105 cursor-pointer no-underline"
+        title="Get directions from your location to this office"
       >
         <Navigation className="w-3 h-3 text-emerald-600" />
         <span>Directions</span>
-      </button>
+      </a>
 
       {/* Bottom Coordinates tag */}
       <div className="absolute bottom-1 left-2 z-[400] bg-white/90 backdrop-blur-2xs px-1.5 py-0.5 rounded text-[9px] font-mono text-slate-600 border border-slate-200 pointer-events-none hidden sm:block">

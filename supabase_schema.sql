@@ -1,7 +1,16 @@
 -- ============================================================================
 -- APPSN Kwara State Branch: Database Schema & Security Policies
--- Run this in your Supabase SQL Editor to provision the new tables with RLS
+-- Run this in your Supabase SQL Editor to provision the tables and columns
 -- ============================================================================
+
+-- 0. SURVEYORS TABLE: ADD LATITUDE & LONGITUDE COLUMNS (NUMERIC/DECIMAL)
+-- Adds persistent columns for high-accuracy OpenStreetMap location coordinates
+ALTER TABLE public.surveyors 
+ADD COLUMN IF NOT EXISTS latitude NUMERIC(10, 7),
+ADD COLUMN IF NOT EXISTS longitude NUMERIC(10, 7);
+
+CREATE INDEX IF NOT EXISTS idx_surveyors_coordinates 
+ON public.surveyors (latitude, longitude);
 
 -- 1. EXECUTIVES TABLE
 CREATE TABLE IF NOT EXISTS public.executives (
