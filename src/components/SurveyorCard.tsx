@@ -89,8 +89,9 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
           )}
 
           {/* Conditional Display: Interactive OpenStreetMap Map or Photo */}
-          {viewMode === 'map' && hasValidCoords ? (
+          {viewMode === 'map' && hasValidCoords && coords ? (
             <CardSurveyorMap
+              key={`card-map-${surveyor.id}-${coords.latitude}-${coords.longitude}`}
               latitude={coords.latitude}
               longitude={coords.longitude}
               surveyorName={surveyor.fullName}

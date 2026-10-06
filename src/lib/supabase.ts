@@ -9,6 +9,7 @@ import {
   INITIAL_ABOUT_CONTENT, INITIAL_SITE_SETTINGS
 } from '../data';
 import { resolveLgaFromLocation } from './lgaResolver';
+import { KNOWN_SURVEYOR_COORDINATES } from './locationCoordinates';
 
 const env = (import.meta as any).env || {};
 const SUPABASE_URL = env.VITE_SUPABASE_URL || "https://jldxqbjdsaneejvqtcra.supabase.co";
@@ -98,14 +99,14 @@ export function mapSupabaseRowToSurveyor(row: SupabaseSurveyorRow): Surveyor {
 
   const rawAddress = row.company_address || row.officeAddress || '';
 
-  // Extract coordinates from row.latitude/row.longitude OR embedded [geo:lat,lng] in address OR cache
+  // Extract coordinates from row.latitude/row.longitude OR embedded [geo:lat,lng] in address OR verified KNOWN_SURVEYOR_COORDINATES
   let latitude: number | null = null;
   let longitude: number | null = null;
 
   const rawLat = row.latitude != null ? parseFloat(String(row.latitude)) : null;
   const rawLng = row.longitude != null ? parseFloat(String(row.longitude)) : null;
 
-  if (rawLat !== null && rawLng !== null && !isNaN(rawLat) && !isNaN(rawLng)) {
+  if (rawLat !== null && rawLng !== null && !isNaN(rawLat) && !isNaN(rawLng) && rawLat !== 0 && rawLng !== 0) {
     latitude = rawLat;
     longitude = rawLng;
   } else {
@@ -114,21 +115,15 @@ export function mapSupabaseRowToSurveyor(row: SupabaseSurveyorRow): Surveyor {
     if (geoMatch) {
       const parsedLat = parseFloat(geoMatch[1]);
       const parsedLng = parseFloat(geoMatch[2]);
-      if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+      if (!isNaN(parsedLat) && !isNaN(parsedLng) && parsedLat !== 0 && parsedLng !== 0) {
         latitude = parsedLat;
         longitude = parsedLng;
       }
-    } else {
-      // Check local cache
-      try {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          const cache = JSON.parse(localStorage.getItem('appsn_surveyor_coords') || '{}');
-          if (cache[row.id] && typeof cache[row.id].latitude === 'number' && typeof cache[row.id].longitude === 'number') {
-            latitude = cache[row.id].latitude;
-            longitude = cache[row.id].longitude;
-          }
-        }
-      } catch (e) {}
+    } else if (row.id && KNOWN_SURVEYOR_COORDINATES[row.id]) {
+      // Lookup verified coordinates strictly by surveyor ID
+      const [knownLat, knownLng] = KNOWN_SURVEYOR_COORDINATES[row.id];
+      latitude = knownLat;
+      longitude = knownLng;
     }
   }
 
@@ -270,6 +265,26 @@ export async function fetchSurveyors(): Promise<Surveyor[]> {
   }
 
   return data.map(mapSupabaseRowToSurveyor);
+}
+
+// Fetch a single surveyor by their unique ID from Supabase
+export async function fetchSurveyorById(id: string): Promise<Surveyor | null> {
+  try {
+    const { data, error } = await supabase
+      .from('surveyors')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return mapSupabaseRowToSurveyor(data);
+  } catch (err) {
+    console.warn('Error fetching surveyor by id:', err);
+    return null;
+  }
 }
 
 // Fetch Executive Council from Supabase

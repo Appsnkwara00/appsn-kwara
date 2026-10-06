@@ -12,6 +12,14 @@ export interface LocationCoordinateResult {
   locationName: string;
 }
 
+// Verified APPSN Kwara State Secretariat Coordinates
+export const SECRETARIAT_COORDINATES = {
+  latitude: 8.4795,
+  longitude: 4.5684,
+  address: 'Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara.',
+  name: 'APPSN Kwara State Secretariat'
+};
+
 /**
  * Retrieves the stored coordinates for an individual surveyor from their Supabase record.
  * Returns null if the surveyor does not have verified/stored coordinates.
@@ -68,7 +76,7 @@ export function getCoordinatesForSurveyor(surveyor: Surveyor | null | undefined)
 }
 
 // Verified office coordinates for listed APPSN Kwara surveyors
-const KNOWN_SURVEYOR_COORDINATES: Record<string, [number, number]> = {
+export const KNOWN_SURVEYOR_COORDINATES: Record<string, [number, number]> = {
   '6e91fdd6-4699-44a2-9299-19c4ce79ce3a': [8.4876, 4.5638], // No.3, Sokoto Road, Sabo-Oke, Ilorin
   '54638eea-0aad-455e-a774-283678ba6d11': [8.4682, 4.5714], // 74, GAA AKANBI Road, Ilorin
   'fd4fec57-75fa-4c54-aa61-fbffc615c291': [8.4891, 4.5458], // No. 2, Sulu Gambari Road, Kwara State library complex

@@ -3,6 +3,8 @@ import {
   Mail, Phone, MapPin, Clock, Send, CheckCircle2, 
   ShieldCheck, ExternalLink
 } from 'lucide-react';
+import SurveyorMap from './SurveyorMap';
+import { SECRETARIAT_COORDINATES } from '../lib/locationCoordinates';
 
 interface ContactSectionProps {
   onSendMessage: (name: string, email: string, phone: string, subject: string, message: string) => void;
@@ -186,6 +188,37 @@ ${lastSubmitted.message}`;
                   Never pay for a survey plan without verifying the surveyor's name in this directory. If in doubt, contact our secretariat hotline.
                 </p>
               </div>
+            </div>
+
+            {/* Secretariat Location Interactive Map */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4" id="secretariat-location-map">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block font-mono">
+                    Secretariat Location Map
+                  </span>
+                  <h3 className="text-base font-serif font-bold text-slate-900 mt-0.5">
+                    APPSN Kwara State Secretariat
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono font-semibold bg-emerald-50 text-[#0D3829] px-2.5 py-1 rounded-full border border-emerald-200/70">
+                  Ilorin, Kwara
+                </span>
+              </div>
+
+              <SurveyorMap
+                key="contact-secretariat-osm-map"
+                lat={SECRETARIAT_COORDINATES.latitude}
+                lng={SECRETARIAT_COORDINATES.longitude}
+                latitude={SECRETARIAT_COORDINATES.latitude}
+                longitude={SECRETARIAT_COORDINATES.longitude}
+                surveyorName={SECRETARIAT_COORDINATES.name}
+                officeAddress={SECRETARIAT_COORDINATES.address}
+                lga="Ilorin East"
+                companyName="Association of Private Practicing Surveyors of Nigeria"
+                height="230px"
+                showDirectionsButton={true}
+              />
             </div>
           </div>
 

@@ -9,6 +9,7 @@ import {
   INITIAL_ABOUT_CONTENT, INITIAL_SITE_SETTINGS
 } from '../data';
 import { resolveLgaFromLocation } from '../lib/lgaResolver';
+import { getCoordinatesForSurveyor } from '../lib/locationCoordinates';
 import BrandingSettingsTab from './admin/BrandingSettingsTab';
 import ServicesTab from './admin/ServicesTab';
 import ValidationGuideTab from './admin/ValidationGuideTab';
@@ -231,8 +232,15 @@ export default function AdminPortal({
     setFormEmail(surveyor.email);
     setFormAddress(surveyor.officeAddress);
     setFormLga(surveyor.lga === 'LGA not specified' ? KWARA_LGAS[0] : surveyor.lga);
-    setFormLat(typeof surveyor.latitude === 'number' ? surveyor.latitude : null);
-    setFormLng(typeof surveyor.longitude === 'number' ? surveyor.longitude : null);
+    const resolvedCoords = getCoordinatesForSurveyor(surveyor);
+    const existingLat = (typeof surveyor.latitude === 'number' && !isNaN(surveyor.latitude) && surveyor.latitude !== 0)
+      ? surveyor.latitude
+      : (resolvedCoords?.latitude ?? null);
+    const existingLng = (typeof surveyor.longitude === 'number' && !isNaN(surveyor.longitude) && surveyor.longitude !== 0)
+      ? surveyor.longitude
+      : (resolvedCoords?.longitude ?? null);
+    setFormLat(existingLat);
+    setFormLng(existingLng);
     setFormSpec(surveyor.specialization);
     setFormAbout(surveyor.aboutMe || '');
     setFormIsActive(surveyor.isActive);
@@ -420,10 +428,10 @@ export default function AdminPortal({
 
     const matchLga = !adminLgaFilter || s.lga === adminLgaFilter;
     const matchSpec = !adminSpecFilter || s.specialization === adminSpecFilter;
+    const sCoords = getCoordinatesForSurveyor(s);
+    const hasPin = (typeof s.latitude === 'number' && typeof s.longitude === 'number' && !isNaN(s.latitude) && !isNaN(s.longitude)) || sCoords !== null;
     const matchLoc = !adminLocationFilter || 
-      (adminLocationFilter === 'pinned' 
-        ? (typeof s.latitude === 'number' && typeof s.longitude === 'number' && !isNaN(s.latitude) && !isNaN(s.longitude))
-        : (typeof s.latitude !== 'number' || typeof s.longitude !== 'number' || isNaN(s.latitude) || isNaN(s.longitude)));
+      (adminLocationFilter === 'pinned' ? hasPin : !hasPin);
 
     return matchQ && matchLga && matchSpec && matchLoc;
   });
@@ -859,17 +867,22 @@ export default function AdminPortal({
                                 {s.officeAddress}
                               </div>
                               <div className="pt-0.5">
-                                {typeof s.latitude === 'number' && typeof s.longitude === 'number' ? (
-                                  <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title={`Lat: ${s.latitude}, Lng: ${s.longitude}`}>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    Pinned ({s.latitude.toFixed(3)}°, {s.longitude.toFixed(3)}°)
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                                    No Pin (Click Edit)
-                                  </span>
-                                )}
+                                {(() => {
+                                  const sCoords = getCoordinatesForSurveyor(s);
+                                  const lat = (typeof s.latitude === 'number' && !isNaN(s.latitude)) ? s.latitude : sCoords?.latitude;
+                                  const lng = (typeof s.longitude === 'number' && !isNaN(s.longitude)) ? s.longitude : sCoords?.longitude;
+                                  return (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)) ? (
+                                    <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title={`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`}>
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                      Pinned ({lat.toFixed(3)}°, {lng.toFixed(3)}°)
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                      No Pin (Click Edit)
+                                    </span>
+                                  );
+                                })()}
                               </div>
                             </td>
                             <td className="px-5 py-3.5 font-mono text-[11px] text-slate-600">

@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { Navigation, MapPin } from 'lucide-react';
 
 export interface SurveyorMapProps {
+  key?: React.Key;
   // Required props as requested
   lat?: number | null;
   lng?: number | null;
@@ -111,6 +112,10 @@ export function SurveyorMap({
             <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
               {lga && lga !== 'LGA not specified' ? `${lga} LGA, Kwara State` : 'Kwara State, Nigeria'}
             </span>
+            <span className="text-[10px] font-mono text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 mt-2 inline-flex items-center gap-1.5 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              Location needs to be verified — exact map coordinates not yet pinned
+            </span>
           </div>
         </div>
       );
@@ -130,6 +135,7 @@ export function SurveyorMap({
       <div className="relative rounded-2xl overflow-hidden border border-slate-200/90 shadow-inner bg-[#FAF9F5]">
         <div style={{ height: containerHeight, minHeight: '220px', width: '100%' }}>
           <MapContainer
+            key={`map-container-${resolvedLat}-${resolvedLng}`}
             center={center}
             zoom={zoom}
             scrollWheelZoom={false}
@@ -144,7 +150,12 @@ export function SurveyorMap({
 
             <MapViewController center={center} zoom={zoom} />
 
-            <Marker position={center} icon={createSurveyorPin()} title={`${surveyorName} - Office Location`}>
+            <Marker 
+              key={`marker-${resolvedLat}-${resolvedLng}`}
+              position={center} 
+              icon={createSurveyorPin()} 
+              title={`${surveyorName} - Office Location`}
+            >
               {(resolvedPopup || surveyorName) && (
                 <Popup>
                   {resolvedPopup ? (

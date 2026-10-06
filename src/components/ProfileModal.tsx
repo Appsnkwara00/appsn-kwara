@@ -9,6 +9,7 @@ import { getCoordinatesForSurveyor } from '../lib/locationCoordinates';
 import SurveyorMap from './SurveyorMap';
 
 interface ProfileModalProps {
+  key?: React.Key;
   surveyor: Surveyor | null;
   onClose: () => void;
   onPreviewImage?: (imageUrl: string, title: string, subtitle?: string) => void;
@@ -190,6 +191,7 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
             </div>
 
             <SurveyorMap
+              key={`profile-map-${surveyor.id}-${activeLat ?? 'none'}-${activeLng ?? 'none'}`}
               lat={activeLat}
               lng={activeLng}
               latitude={activeLat}

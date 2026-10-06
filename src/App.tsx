@@ -140,9 +140,7 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const targetPath = getPathForView(view);
       if (surveyor) {
-        const regOrId = surveyor.registrationNumber || surveyor.surcon_registration_number || surveyor.id;
-        const encodedReg = encodeURIComponent(regOrId);
-        window.history.replaceState({ view, surveyor: surveyor.id }, '', `${targetPath}?surveyor=${encodedReg}`);
+        window.history.replaceState({ view, surveyor: surveyor.id }, '', `${targetPath}?surveyor=${encodeURIComponent(surveyor.id)}`);
       } else {
         window.history.replaceState({ view }, '', targetPath);
       }
@@ -355,11 +353,11 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       const surveyorParam = params.get('surveyor');
       if (surveyorParam && surveyors.length > 0) {
-        const match = surveyors.find(
-          s => (s.registrationNumber && s.registrationNumber.toLowerCase() === surveyorParam.toLowerCase()) ||
-               (s.surcon_registration_number && s.surcon_registration_number.toLowerCase() === surveyorParam.toLowerCase()) ||
-               s.id.toLowerCase() === surveyorParam.toLowerCase()
-        );
+        const match = surveyors.find(s => s.id.toLowerCase() === surveyorParam.toLowerCase()) ||
+          surveyors.find(
+            s => (s.registrationNumber && s.registrationNumber !== 'SURCON CERTIFIED' && s.registrationNumber.toLowerCase() === surveyorParam.toLowerCase()) ||
+                 (s.surcon_registration_number && s.surcon_registration_number.toLowerCase() === surveyorParam.toLowerCase())
+          );
         if (match) {
           setSelectedSurveyor(match);
         } else {
@@ -384,11 +382,11 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       const surveyorParam = params.get('surveyor');
       if (surveyorParam && !selectedSurveyor) {
-        const match = surveyors.find(
-          s => (s.registrationNumber && s.registrationNumber.toLowerCase() === surveyorParam.toLowerCase()) ||
-               (s.surcon_registration_number && s.surcon_registration_number.toLowerCase() === surveyorParam.toLowerCase()) ||
-               s.id.toLowerCase() === surveyorParam.toLowerCase()
-        );
+        const match = surveyors.find(s => s.id.toLowerCase() === surveyorParam.toLowerCase()) ||
+          surveyors.find(
+            s => (s.registrationNumber && s.registrationNumber !== 'SURCON CERTIFIED' && s.registrationNumber.toLowerCase() === surveyorParam.toLowerCase()) ||
+                 (s.surcon_registration_number && s.surcon_registration_number.toLowerCase() === surveyorParam.toLowerCase())
+          );
         if (match) {
           setSelectedSurveyor(match);
         }
@@ -957,6 +955,7 @@ export default function App() {
 
       {/* 3. PROFILE MODAL */}
       <ProfileModal
+        key={selectedSurveyor ? `modal-${selectedSurveyor.id}` : 'no-modal'}
         surveyor={selectedSurveyor}
         onClose={() => handleSelectSurveyor(null)}
         onPreviewImage={handleOpenPreview}

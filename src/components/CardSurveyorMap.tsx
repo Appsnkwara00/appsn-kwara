@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { Navigation, MapPin } from 'lucide-react';
 
 interface CardSurveyorMapProps {
+  key?: React.Key;
   latitude: number;
   longitude: number;
   surveyorName: string;
