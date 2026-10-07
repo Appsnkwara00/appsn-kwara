@@ -5,7 +5,7 @@ import {
   Building2, ArrowRight, ZoomIn, CheckCircle2
 } from 'lucide-react';
 import { buildWhatsAppLink } from '../lib/whatsapp';
-import { getCoordinatesForSurveyor } from '../lib/locationCoordinates';
+import { resolveSurveyorLocation } from '../lib/locationCoordinates';
 import SurveyorMap from './SurveyorMap';
 
 interface ProfileModalProps {
@@ -20,9 +20,10 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
 
   if (!surveyor) return null;
 
-  const coords = getCoordinatesForSurveyor(surveyor);
-  const activeLat = coords ? coords.latitude : (typeof surveyor.latitude === 'number' ? surveyor.latitude : null);
-  const activeLng = coords ? coords.longitude : (typeof surveyor.longitude === 'number' ? surveyor.longitude : null);
+  // Single source of truth for surveyor location: strictly tied to surveyor.id
+  const loc = resolveSurveyorLocation(surveyor);
+  const activeLat = loc ? loc.latitude : null;
+  const activeLng = loc ? loc.longitude : null;
 
   const initialLetter = surveyor.fullName
     ? surveyor.fullName.replace(/^(Surv\.|Engr\.|Mrs\.|Mr\.|Dr\.|Alhaji)\s*/i, '').trim().charAt(0) || 'S'

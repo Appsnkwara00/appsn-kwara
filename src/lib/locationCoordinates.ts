@@ -1,10 +1,11 @@
-// Location Coordinate Resolution for APPSN Registered Surveyors
+// Location Coordinate Resolution & Smart Caching for APPSN Registered Surveyors
 // Strictly adheres to the requirement:
-// 1. Only returns coordinates stored in Supabase (or parsed from [geo:lat,lng])
-// 2. Do NOT guess locations or use generic/dummy city/LGA coordinates.
-// 3. If an accurate location is missing, returns null so the UI can display the address cleanly.
+// 1. Single source of truth per unique surveyor ID
+// 2. Direct Supabase coordinates with client-side smart caching
+// 3. No re-geocoding on Get Directions or map rendering
+// 4. No dummy/default coordinates; displays "Location not verified" if missing
 
-import { Surveyor } from '../types';
+import { Surveyor, SurveyorLocation } from '../types';
 
 export interface LocationCoordinateResult {
   latitude: number;
@@ -20,59 +21,223 @@ export const SECRETARIAT_COORDINATES = {
   name: 'APPSN Kwara State Secretariat'
 };
 
-/**
- * Retrieves the stored coordinates for an individual surveyor from their Supabase record.
- * Returns null if the surveyor does not have verified/stored coordinates.
- */
-export function getCoordinatesForSurveyor(surveyor: Surveyor | null | undefined): LocationCoordinateResult | null {
-  if (!surveyor) return null;
+// ============================================================================
+// 1. SMART LOCATION CACHING BY SURVEYOR ID
+// ============================================================================
 
-  // 1. Direct numeric coordinates stored on the surveyor model
-  if (
+const CACHE_PREFIX = 'surveyor_loc:';
+
+export interface CachedLocationRecord {
+  surveyorId: string;
+  latitude: number;
+  longitude: number;
+  location_verified: boolean;
+  location_verified_at?: string;
+  location_verified_by?: string;
+  updated_at?: string;
+  cached_at: number;
+}
+
+/**
+ * Retrieves cached location data specifically for the given unique surveyor ID.
+ * Never returns cached coordinates if the surveyor ID does not match.
+ */
+export function getCachedSurveyorLocation(surveyorId: string): SurveyorLocation | null {
+  if (!surveyorId || typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(`${CACHE_PREFIX}${surveyorId}`);
+    if (!raw) return null;
+    const parsed: CachedLocationRecord = JSON.parse(raw);
+    
+    // Strict validation: must match requested surveyorId and contain valid numbers
+    if (
+      parsed &&
+      parsed.surveyorId === surveyorId &&
+      typeof parsed.latitude === 'number' &&
+      typeof parsed.longitude === 'number' &&
+      !isNaN(parsed.latitude) &&
+      !isNaN(parsed.longitude) &&
+      parsed.latitude >= -90 &&
+      parsed.latitude <= 90 &&
+      parsed.longitude >= -180 &&
+      parsed.longitude <= 180 &&
+      !(parsed.latitude === 0 && parsed.longitude === 0)
+    ) {
+      return {
+        surveyorId: parsed.surveyorId,
+        latitude: parsed.latitude,
+        longitude: parsed.longitude,
+        verified: parsed.location_verified ?? true,
+        verifiedAt: parsed.location_verified_at,
+        verifiedBy: parsed.location_verified_by,
+        updatedAt: parsed.updated_at,
+        source: 'cache'
+      };
+    }
+  } catch (e) {
+    // Graceful fallback on localStorage error
+  }
+  return null;
+}
+
+/**
+ * Stores verified location record in cache keyed strictly by surveyor ID.
+ */
+export function setCachedSurveyorLocation(location: SurveyorLocation): void {
+  if (!location || !location.surveyorId || typeof window === 'undefined') return;
+  try {
+    const record: CachedLocationRecord = {
+      surveyorId: location.surveyorId,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      location_verified: location.verified,
+      location_verified_at: location.verifiedAt,
+      location_verified_by: location.verifiedBy,
+      updated_at: location.updatedAt,
+      cached_at: Date.now()
+    };
+    window.localStorage.setItem(`${CACHE_PREFIX}${location.surveyorId}`, JSON.stringify(record));
+  } catch (e) {
+    // Quota or disabled storage fallback
+  }
+}
+
+/**
+ * Invalidates cached location for a specific surveyor when an admin updates coordinates.
+ */
+export function invalidateCachedSurveyorLocation(surveyorId: string): void {
+  if (!surveyorId || typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(`${CACHE_PREFIX}${surveyorId}`);
+  } catch (e) {}
+}
+
+// ============================================================================
+// 2. LOCATION DEBUGGING HELPER (Item 11)
+// ============================================================================
+
+export function logLocationDebug(category: 'PROFILE' | 'MAP' | 'DIRECTIONS', data: Record<string, any>): void {
+  if (typeof window === 'undefined') return;
+  const isDebug = (import.meta as any).env?.DEV || window.localStorage?.getItem('debug_location') === 'true';
+  if (isDebug) {
+    console.log(`[LOCATION DEBUG] ${category}:`, data);
+  }
+}
+
+// ============================================================================
+// 3. SINGLE SOURCE OF TRUTH LOCATION RESOLUTION
+// Priority:
+// 1. Fresh verified Supabase data directly on the record
+// 2. Embedded [geo:lat,lng] tag stored on the Supabase record
+// 3. Valid cached data for the SAME surveyor ID
+// 4. Verified seed coordinates strictly for that surveyor ID
+// 5. No location (returns null)
+// ============================================================================
+
+export function resolveSurveyorLocation(surveyor: Surveyor | null | undefined): SurveyorLocation | null {
+  if (!surveyor || !surveyor.id) return null;
+
+  // 1. Direct numeric coordinates on the surveyor model
+  const hasValidDbLat =
     typeof surveyor.latitude === 'number' &&
-    typeof surveyor.longitude === 'number' &&
     !isNaN(surveyor.latitude) &&
-    !isNaN(surveyor.longitude) &&
     surveyor.latitude >= -90 &&
     surveyor.latitude <= 90 &&
+    surveyor.latitude !== 0;
+
+  const hasValidDbLng =
+    typeof surveyor.longitude === 'number' &&
+    !isNaN(surveyor.longitude) &&
     surveyor.longitude >= -180 &&
     surveyor.longitude <= 180 &&
-    !(surveyor.latitude === 0 && surveyor.longitude === 0)
-  ) {
-    return {
-      latitude: surveyor.latitude,
-      longitude: surveyor.longitude,
-      locationName: surveyor.officeAddress || 'Surveyor Office Location'
+    surveyor.longitude !== 0;
+
+  if (hasValidDbLat && hasValidDbLng) {
+    const loc: SurveyorLocation = {
+      surveyorId: surveyor.id,
+      latitude: Number(surveyor.latitude),
+      longitude: Number(surveyor.longitude),
+      verified: surveyor.location_verified ?? true,
+      verifiedAt: surveyor.location_verified_at,
+      verifiedBy: surveyor.location_verified_by,
+      updatedAt: surveyor.updated_at,
+      source: 'database'
     };
+    // Sync into cache
+    setCachedSurveyorLocation(loc);
+    return loc;
   }
 
-  // 2. Embedded [geo:lat,lng] tag stored in the Supabase record
+  // 2. Embedded [geo:lat,lng] tag in raw company_address / officeAddress
   const rawAddress = (surveyor.company_address || surveyor.officeAddress || '').trim();
   const geoMatch = rawAddress.match(/\[geo:([0-9.-]+),([0-9.-]+)\]/);
   if (geoMatch) {
     const lat = parseFloat(geoMatch[1]);
     const lng = parseFloat(geoMatch[2]);
-    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-      return {
+    if (
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      lat >= -90 &&
+      lat <= 90 &&
+      lng >= -180 &&
+      lng <= 180 &&
+      !(lat === 0 && lng === 0)
+    ) {
+      const loc: SurveyorLocation = {
+        surveyorId: surveyor.id,
         latitude: lat,
         longitude: lng,
-        locationName: rawAddress.replace(/\s*\[geo:[^\]]+\]\s*/g, '').trim()
+        verified: true,
+        updatedAt: surveyor.updated_at,
+        source: 'database'
       };
+      setCachedSurveyorLocation(loc);
+      return loc;
     }
   }
 
-  // 3. Fallback to verified Kwara office address coordinates by surveyor ID
-  if (surveyor.id && KNOWN_SURVEYOR_COORDINATES[surveyor.id]) {
-    const [lat, lng] = KNOWN_SURVEYOR_COORDINATES[surveyor.id];
-    return {
-      latitude: lat,
-      longitude: lng,
-      locationName: surveyor.officeAddress || 'Surveyor Office Location'
-    };
+  // 3. Valid cached data for the SAME surveyor ID
+  const cached = getCachedSurveyorLocation(surveyor.id);
+  if (cached) {
+    return cached;
   }
 
-  // If no verified coordinates are stored for this surveyor, return null.
+  // 4. Verified Kwara office coordinates by unique surveyor ID
+  if (KNOWN_SURVEYOR_COORDINATES[surveyor.id]) {
+    const [lat, lng] = KNOWN_SURVEYOR_COORDINATES[surveyor.id];
+    const loc: SurveyorLocation = {
+      surveyorId: surveyor.id,
+      latitude: lat,
+      longitude: lng,
+      verified: true,
+      source: 'seed'
+    };
+    setCachedSurveyorLocation(loc);
+    return loc;
+  }
+
+  // 5. No location available (never guess or use default coordinates)
   return null;
+}
+
+/**
+ * Backward-compatible helper used across cards and tables.
+ */
+export function getCoordinatesForSurveyor(surveyor: Surveyor | null | undefined): LocationCoordinateResult | null {
+  const loc = resolveSurveyorLocation(surveyor);
+  if (!loc) return null;
+  return {
+    latitude: loc.latitude,
+    longitude: loc.longitude,
+    locationName: surveyor?.officeAddress || 'Surveyor Office Location'
+  };
+}
+
+/**
+ * Returns true if the surveyor has verified, valid coordinates stored.
+ */
+export function hasValidSurveyorLocation(surveyor: Surveyor | null | undefined): boolean {
+  return resolveSurveyorLocation(surveyor) !== null;
 }
 
 // Verified office coordinates for listed APPSN Kwara surveyors
@@ -138,10 +303,3 @@ export const KNOWN_SURVEYOR_COORDINATES: Record<string, [number, number]> = {
   'f8aafde1-5eb3-4adf-a162-b98c3fc2fb6d': [8.4831, 4.5588], // Ebunoluwa Complex, Lajorin Road
   '5f174d07-50ff-404f-b2d5-76c05253289d': [8.4748, 4.5692]  // Muslim Cemetery Road, Irewolede
 };
-
-/**
- * Returns true if the surveyor has verified, valid coordinates stored.
- */
-export function hasValidSurveyorLocation(surveyor: Surveyor | null | undefined): boolean {
-  return getCoordinatesForSurveyor(surveyor) !== null;
-}

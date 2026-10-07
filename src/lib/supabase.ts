@@ -9,7 +9,11 @@ import {
   INITIAL_ABOUT_CONTENT, INITIAL_SITE_SETTINGS
 } from '../data';
 import { resolveLgaFromLocation } from './lgaResolver';
-import { KNOWN_SURVEYOR_COORDINATES } from './locationCoordinates';
+import { 
+  KNOWN_SURVEYOR_COORDINATES, 
+  setCachedSurveyorLocation, 
+  invalidateCachedSurveyorLocation 
+} from './locationCoordinates';
 
 const env = (import.meta as any).env || {};
 const SUPABASE_URL = env.VITE_SUPABASE_URL || "https://jldxqbjdsaneejvqtcra.supabase.co";
@@ -198,14 +202,23 @@ export async function saveSurveyorToSupabase(surveyor: Surveyor): Promise<void> 
     ? `${cleanAddr} [geo:${Number(surveyor.latitude).toFixed(6)},${Number(surveyor.longitude).toFixed(6)}]`
     : cleanAddr;
 
-  // 1. Always update local storage cache immediately
+  // 1. Always update local storage caches immediately
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       const cache = JSON.parse(localStorage.getItem('appsn_surveyor_coords') || '{}');
-      if (typeof surveyor.latitude === 'number' && typeof surveyor.longitude === 'number') {
+      if (typeof surveyor.latitude === 'number' && typeof surveyor.longitude === 'number' && !isNaN(surveyor.latitude) && !isNaN(surveyor.longitude)) {
         cache[surveyor.id] = { latitude: surveyor.latitude, longitude: surveyor.longitude };
+        setCachedSurveyorLocation({
+          surveyorId: surveyor.id,
+          latitude: surveyor.latitude,
+          longitude: surveyor.longitude,
+          verified: true,
+          source: 'database',
+          updatedAt: new Date().toISOString()
+        });
       } else {
         delete cache[surveyor.id];
+        invalidateCachedSurveyorLocation(surveyor.id);
       }
       localStorage.setItem('appsn_surveyor_coords', JSON.stringify(cache));
     }

@@ -31,6 +31,21 @@ export interface Surveyor {
   areasServed?: string[];
   latitude?: number | null;
   longitude?: number | null;
+  location_verified?: boolean;
+  location_verified_at?: string;
+  location_verified_by?: string;
+  updated_at?: string;
+}
+
+export interface SurveyorLocation {
+  surveyorId: string;
+  latitude: number;
+  longitude: number;
+  verified: boolean;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  updatedAt?: string;
+  source?: 'database' | 'cache' | 'seed';
 }
 
 export interface Executive {
