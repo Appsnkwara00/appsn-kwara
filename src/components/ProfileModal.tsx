@@ -5,8 +5,6 @@ import {
   Building2, ArrowRight, ZoomIn, CheckCircle2
 } from 'lucide-react';
 import { buildWhatsAppLink } from '../lib/whatsapp';
-import { resolveSurveyorLocation } from '../lib/locationCoordinates';
-import SurveyorMap from './SurveyorMap';
 
 interface ProfileModalProps {
   key?: React.Key;
@@ -19,11 +17,6 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
   const [imgError, setImgError] = useState(false);
 
   if (!surveyor) return null;
-
-  // Single source of truth for surveyor location: strictly tied to surveyor.id
-  const loc = resolveSurveyorLocation(surveyor);
-  const activeLat = loc ? loc.latitude : null;
-  const activeLng = loc ? loc.longitude : null;
 
   const initialLetter = surveyor.fullName
     ? surveyor.fullName.replace(/^(Surv\.|Engr\.|Mrs\.|Mr\.|Dr\.|Alhaji)\s*/i, '').trim().charAt(0) || 'S'
@@ -138,16 +131,12 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
               </div>
 
               {/* Metadata Highlights */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-                <div className="bg-[#FAF9F5] rounded-xl p-3 border border-slate-100">
-                  <span className="text-[10px] text-slate-400 uppercase font-mono block font-bold">Experience</span>
-                  <span className="text-xs sm:text-sm font-bold text-slate-800 font-mono">{surveyor.yearsOfExperience} Years Practice</span>
-                </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="bg-[#FAF9F5] rounded-xl p-3 border border-slate-100">
                   <span className="text-[10px] text-slate-400 uppercase font-mono block font-bold">Jurisdiction</span>
                   <span className="text-xs sm:text-sm font-bold text-slate-800 font-mono">Kwara State</span>
                 </div>
-                <div className="bg-[#FAF9F5] rounded-xl p-3 border border-slate-100 col-span-2 sm:col-span-1">
+                <div className="bg-[#FAF9F5] rounded-xl p-3 border border-slate-100">
                   <span className="text-[10px] text-slate-400 uppercase font-mono block font-bold">Good Standing</span>
                   <span className="text-xs sm:text-sm font-bold text-emerald-700 flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
@@ -178,30 +167,6 @@ export default function ProfileModal({ surveyor, onClose, onPreviewImage }: Prof
               )}
             </div>
 
-          </div>
-
-          {/* Location & OpenStreetMap Section */}
-          <div className="pt-6 border-t border-slate-100 space-y-3.5" id="profile-location-section">
-            <div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
-                Office Location &amp; Headquarters
-              </span>
-              <h4 className="text-base font-bold text-slate-900 font-serif">
-                {surveyor.lga && surveyor.lga !== 'LGA not specified' ? `${surveyor.lga}, Kwara State` : 'Kwara State, Nigeria'}
-              </h4>
-            </div>
-
-            <SurveyorMap
-              key={`profile-map-${surveyor.id}-${activeLat ?? 'none'}-${activeLng ?? 'none'}`}
-              lat={activeLat}
-              lng={activeLng}
-              latitude={activeLat}
-              longitude={activeLng}
-              surveyorName={surveyor.fullName}
-              officeAddress={surveyor.officeAddress}
-              lga={surveyor.lga}
-              companyName={surveyor.company_name}
-            />
           </div>
 
           {/* Direct Contact Channels Section (Clean, streamlined without direct message form) */}

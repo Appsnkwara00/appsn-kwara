@@ -15,8 +15,8 @@ export interface LocationCoordinateResult {
 
 // Verified APPSN Kwara State Secretariat Coordinates
 export const SECRETARIAT_COORDINATES = {
-  latitude: 8.4795,
-  longitude: 4.5684,
+  latitude: 8.4757650,
+  longitude: 4.5561186,
   address: 'Along Ikoyi Avenue, Off New Yidi Rd, Ilorin, Kwara.',
   name: 'APPSN Kwara State Secretariat'
 };

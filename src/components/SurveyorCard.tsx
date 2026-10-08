@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Surveyor } from '../types';
 import { Phone, Mail, MapPin, ArrowRight, ZoomIn } from 'lucide-react';
 import { buildWhatsAppLink } from '../lib/whatsapp';
-import { getCoordinatesForSurveyor } from '../lib/locationCoordinates';
-import CardSurveyorMap from './CardSurveyorMap';
 
 interface SurveyorCardProps {
   key?: React.Key;
@@ -14,10 +12,6 @@ interface SurveyorCardProps {
 
 export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }: SurveyorCardProps) {
   const [imgError, setImgError] = useState(false);
-  const [viewMode, setViewMode] = useState<'photo' | 'map'>('photo');
-
-  const coords = getCoordinatesForSurveyor(surveyor);
-  const hasValidCoords = coords !== null;
 
   const initialLetter = surveyor.fullName
     ? surveyor.fullName.replace(/^(Surv\.|Engr\.|Mrs\.|Mr\.|Dr\.|Alhaji)\s*/i, '').trim().charAt(0) || 'S'
@@ -46,101 +40,51 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
       className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:border-emerald-900/30 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden group"
       id={`surveyor-card-${surveyor.id}`}
     >
-      {/* Top Container: Interactive Map or Photo */}
+      {/* Top Container: Photo or Avatar */}
       <div className="p-3 pb-0">
         <div 
           className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-100"
         >
-          {/* Top Control: Photo / Map Mode Switcher (only shown when valid location exists) */}
-          {hasValidCoords && (
-            <div className="absolute top-2.5 left-2.5 z-20 flex items-center bg-black/60 backdrop-blur-md rounded-full p-0.5 border border-white/10 shadow-sm">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setViewMode('photo');
-                }}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer ${
-                  viewMode === 'photo'
-                    ? 'bg-white text-slate-900 shadow-2xs'
-                    : 'text-white/80 hover:text-white'
-                }`}
-                title="View surveyor portrait"
-              >
-                Photo
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setViewMode('map');
-                }}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                  viewMode === 'map'
-                    ? 'bg-emerald-600 text-white shadow-2xs'
-                    : 'text-white/80 hover:text-white'
-                }`}
-                title="View interactive OpenStreetMap for this office"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-                Map
-              </button>
-            </div>
-          )}
-
-          {/* Conditional Display: Interactive OpenStreetMap Map or Photo */}
-          {viewMode === 'map' && hasValidCoords && coords ? (
-            <CardSurveyorMap
-              key={`card-map-${surveyor.id}-${coords.latitude}-${coords.longitude}`}
-              latitude={coords.latitude}
-              longitude={coords.longitude}
-              surveyorName={surveyor.fullName}
-              officeAddress={surveyor.officeAddress}
-              lga={surveyor.lga}
-              companyName={surveyor.company_name}
-            />
-          ) : (
-            <div
-              onClick={handleImageClick}
-              className={`w-full h-full ${
-                !imgError && surveyor.profilePhoto ? 'cursor-zoom-in group/img' : ''
-              }`}
-              title={!imgError && surveyor.profilePhoto ? "Click to enlarge photo" : undefined}
-            >
-              {!imgError && surveyor.profilePhoto ? (
-                <>
-                  <img
-                    src={surveyor.profilePhoto}
-                    alt={surveyor.fullName}
-                    onError={() => setImgError(true)}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-                    referrerPolicy="no-referrer"
-                  />
-                  {/* Subtle zoom indicator on hover */}
-                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="bg-black/60 backdrop-blur-xs text-white p-2 rounded-full transform scale-90 group-hover/img:scale-100 transition-transform">
-                      <ZoomIn className="w-4 h-4 text-white" />
-                    </div>
+          <div
+            onClick={handleImageClick}
+            className={`w-full h-full ${
+              !imgError && surveyor.profilePhoto ? 'cursor-zoom-in group/img' : ''
+            }`}
+            title={!imgError && surveyor.profilePhoto ? "Click to enlarge photo" : undefined}
+          >
+            {!imgError && surveyor.profilePhoto ? (
+              <>
+                <img
+                  src={surveyor.profilePhoto}
+                  alt={surveyor.fullName}
+                  onError={() => setImgError(true)}
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                  referrerPolicy="no-referrer"
+                />
+                {/* Subtle zoom indicator on hover */}
+                <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="bg-black/60 backdrop-blur-xs text-white p-2 rounded-full transform scale-90 group-hover/img:scale-100 transition-transform">
+                    <ZoomIn className="w-4 h-4 text-white" />
                   </div>
-                </>
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EBF4F0] to-[#d8ece2] text-[#0D3829]">
-                  <div className="w-14 h-14 rounded-full bg-[#0D3829] text-white flex items-center justify-center font-serif text-xl font-bold shadow-xs">
-                    {initialLetter}
-                  </div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#0D3829]/80 font-bold mt-2">
-                    APPSN REGISTERED
-                  </span>
                 </div>
-              )}
-
-              {/* Verified Badge in top right corner */}
-              <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm pointer-events-none">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
-                <span>Verified</span>
+              </>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EBF4F0] to-[#d8ece2] text-[#0D3829]">
+                <div className="w-14 h-14 rounded-full bg-[#0D3829] text-white flex items-center justify-center font-serif text-xl font-bold shadow-xs">
+                  {initialLetter}
+                </div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#0D3829]/80 font-bold mt-2">
+                  APPSN REGISTERED
+                </span>
               </div>
+            )}
+
+            {/* Verified Badge in top right corner */}
+            <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm pointer-events-none">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+              <span>Verified</span>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -158,32 +102,11 @@ export default function SurveyorCard({ surveyor, onViewProfile, onPreviewImage }
           </div>
 
           {/* LGA Location (derived from office address) */}
-          <div className="flex items-center justify-between text-xs text-slate-600 font-medium pt-0.5">
-            <div className="flex items-center gap-1.5 truncate" title={surveyor.officeAddress}>
-              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span className={`truncate ${surveyor.lga === 'LGA not specified' ? 'italic text-slate-400' : 'text-slate-700 font-medium'}`}>
-                {lgaDisplay}
-              </span>
-            </div>
-
-            {hasValidCoords && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setViewMode(viewMode === 'map' ? 'photo' : 'map');
-                }}
-                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                  viewMode === 'map'
-                    ? 'bg-[#0D3829] text-white border-[#0D3829] shadow-2xs'
-                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-200/70'
-                }`}
-                title={viewMode === 'map' ? 'Switch back to photo' : "View interactive map for this surveyor's office"}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{viewMode === 'map' ? 'Photo' : 'Map'}</span>
-              </button>
-            )}
+          <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium pt-0.5 truncate" title={surveyor.officeAddress}>
+            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span className={`truncate ${surveyor.lga === 'LGA not specified' ? 'italic text-slate-400' : 'text-slate-700 font-medium'}`}>
+              {lgaDisplay}
+            </span>
           </div>
         </div>
 

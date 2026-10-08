@@ -333,11 +333,6 @@ ${lastSubmitted.message}`;
                   />
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium bg-[#FAF9F5] p-2.5 rounded-xl border border-slate-200/80">
-                  <Mail className="w-4 h-4 text-[#0D3829] shrink-0" />
-                  <span>Submissions are dispatched directly to <strong className="text-[#0D3829] font-mono">appsnkwara@gmail.com</strong></span>
-                </div>
-
                 <button
                   id="submit-contact-btn"
                   type="submit"
